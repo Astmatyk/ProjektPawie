@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div class="login-container">
+    <h2>Rejestracja</h2>
+    <form id="registerForm">
+        <div class="input-group">
+            <label for="username">Login</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="input-group">
+            <label for="password">Hasło</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" id="przycisk">Zarejestruj się</button>
+
+        <div id="errorMessage" style="color: #ff5252; margin-top: 15px; display: none;"></div>
+    </form>
+</div>
+
+<script>
+    const form = document.getElementById("registerForm");
+    const przycisk = document.getElementById("przycisk");
+    const errorMessage = document.getElementById("errorMessage");
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const loginVal = document.getElementById("username").value;
+        const passwordVal = document.getElementById("password").value;
+
+        // Zabezpieczenie przed podwójnym kliknięciem
+        przycisk.disabled = true;
+        przycisk.innerText = "Rejestrowanie...";
+        errorMessage.style.display = "none";
+
+        fetch("/api/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username: loginVal, password: passwordVal })
+        })
+            .then(async (res) => {
+                const data = await res.json();
+
+                if (res.ok) {
+                    errorMessage.style.color = "#4CAF50"; // zielony
+                    errorMessage.innerText = "Konto utworzone z sukcesem! Przekierowywanie...";
+                    errorMessage.style.display = "block";
+
+                    setTimeout(() => {
+                        window.location.href = "/login.html";
+                    }, 1500);
+                } else {
+                    errorMessage.style.color = "#ff5252"; // czerwony
+                    errorMessage.innerText = data.error || "Wystąpił błąd podczas rejestracji.";
+                    errorMessage.style.display = "block";
+
+                    przycisk.disabled = false;
+                    przycisk.innerText = "Zarejestruj się";
+                }
+            })
+            .catch((err) => {
+                // Błąd sieci
+                errorMessage.style.color = "#ff5252";
+                errorMessage.innerText = "Błąd połączenia z serwerem.";
+                errorMessage.style.display = "block";
+
+                przycisk.disabled = false;
+                przycisk.innerText = "Zarejestruj się";
+            });
+    });
+</script>
+</body>
+</html>
