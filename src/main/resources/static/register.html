@@ -7,6 +7,16 @@
         * {
             font-family: sans-serif;
         }
+        body {
+            background-color: rgb(18, 18, 18);
+        }
+        h2, p, label {
+            color: white;
+        }
+        .login-container {
+            margin: 0 auto;
+            width: fit-content;
+        }
     </style>
 </head>
 <body>
@@ -17,10 +27,12 @@
             <label for="username">Login</label>
             <input type="text" id="username" name="username" required>
         </div>
+        <br>
         <div class="input-group">
             <label for="password">Hasło</label>
             <input type="password" id="password" name="password" required>
         </div>
+        <br>
         <button type="submit" id="przycisk">Zarejestruj się</button>
 
         <div id="errorMessage" style="color: #ff5252; margin-top: 15px; display: none;"></div>
