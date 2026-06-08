@@ -8,21 +8,24 @@
         .upload-container, .filelist { margin-top: 20px; }
         .listItem { background: #333; padding: 10px; margin: 5px 0; border-radius: 5px; }
         a { color: #00bcd4; text-decoration: none; }
-        button { padding: 5px 10px; margin-left: 10px; color: white; background-color: #444444;}
+        button { padding: 5px 10px; margin-left: 10px; color: white; background-color: #444444; border: none; border-radius: 5px;}
         #uploadBar { background: #00bcd4; transition: width 0.3s; }
+        .filelist { background-color: dimgray; border-radius: 10px; padding: 10px; }
+        .upload-container, .sort-container { background-color: dimgray; padding: 10px; width: fit-content; border-radius: 10px; }
     </style>
 </head>
 <body>
 <h1>AstraCloud</h1>
 
-<div>
-    <p>sortuj</p>
+<div class="sort-container">
+    <p>sortuj i filtruj</p>
     <button id="asc">rosnąco</button>
     <button id="desc">malejąco</button>
     <input type="text" id="searchInput" placeholder="Szukaj pliku...">
 </div>
 
 <div class="upload-container">
+    <p>prześlij plik!</p>
     <input type="file" id="fileInput">
     <button id="uploadButton" style="background-color: purple; color: white; width: 76px;">Wyślij</button>
     <div style="width: 100%; background: #444; margin-top: 5px;">
