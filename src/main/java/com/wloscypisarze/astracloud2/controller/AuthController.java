@@ -1,5 +1,7 @@
 package com.wloscypisarze.astracloud2.controller;
 
+import com.wloscypisarze.astracloud2.dto.RegisterRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
@@ -7,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -25,28 +28,35 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> data) {
-        String login = data.get("username");
-        String password = data.get("password");
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult bindingResult) {
 
-        if (login == null || password == null || login.isBlank() || password.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Login i hasło są wymagane"));
+        //błędy walidacyjne
+        if (bindingResult.hasErrors()) {
+            String errorMessage = bindingResult.getAllErrors().get(0).getDefaultMessage();
+            return ResponseEntity.badRequest().body(Map.of("error", errorMessage));
         }
 
-        if (userDetailsManager.userExists(login)) {
+        //hasła muszą się zgadzać
+        if (!request.getPassword().equals(request.getPasswordConfirm())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Hasła nie są identyczne"));
+        }
+
+        //niedozwolone są duplikaty użytkowników
+        if (userDetailsManager.userExists(request.getUsername())) {
             return ResponseEntity.badRequest().body(Map.of("error", "Login już istnieje"));
         }
 
         // tworzenie użytkownika
         UserDetails newUser = User.builder()
-                .username(login)
-                .password(passwordEncoder.encode(password))
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .roles("USER")
                 .build();
 
         userDetailsManager.createUser(newUser);
 
-        new java.io.File("uploads/" + login).mkdirs();
+        // Tworzenie katalogu
+        new java.io.File("uploads/" + request.getUsername()).mkdirs();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Rejestracja zakończona pomyślnie"));
     }

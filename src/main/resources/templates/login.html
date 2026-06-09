@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pl"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AstraCloud Spring</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header>
+  <div class="maintenance"><h3>W przypadku utraty dostępu do konta, należy zarejestrować się ponownie w celu odzyskania dostępu do plików.</h3></div>
+  <div class="head">
+    <a href="/"><img src="assets/img/astracloud_logo.svg" alt="astra" width="200"></a>
+  </div>
+  <nav>
+    <p><a href="/">Strona główna</a></p>
+    <p id="diskHeaderAction"><a href="/account">Dysk</a></p>
+    <p sec:authorize="isAnonymous()" id="loginHeaderAction"><a href="/login">Logowanie</a></p>
+    <p sec:authorize="isAnonymous()" id="registerHeaderAction"><a href="/register">Rejestracja</a></p>
+    <p sec:authorize="isAuthenticated()" id="logoutHeaderAction"><a href="/api/logout">Wyloguj</a></p>
+  </nav>
+</header>
+<main>
+  <div class="myForm">
+    <form id="loginForm" action="/api/login" method="POST">
+      <legend>Logowanie</legend><br>
+      <input type="text" name="username" id="username" placeholder="login..." required /><br>
+      <input type="password" name="password" id="password" required placeholder="hasło..." minlength="8" /><br>
+      <button type="submit">Zaloguj</button><br>
+    </form>
+    <div id="jsCode"><span th:if="${errorMessage}" th:text="${errorMessage}"></span></div>
+  </div>
+</main>
+<footer>
+<!--  <script src="static/version.js"></script>-->
+  <p>astracloud spring indev</p>
+</footer>
+
+<script>
+  const form = document.getElementById('loginForm');
+  const errorMessage = document.getElementById('jsCode');
+
+  form.addEventListener("submit", async function(event) {
+    const loginVal = document.getElementById("username").value.trim();
+    const passwordVal = document.getElementById("password").value;
+
+    errorMessage.style.display = "none";
+
+    console.log("uwaga login event");
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: loginVal, password: passwordVal })
+      });
+    } catch (error) {
+      errorMessage.innerHTML = "Sprawdź dane logowania.";
+    }
+  });
+
+</script>
+
+</body>
+</html>

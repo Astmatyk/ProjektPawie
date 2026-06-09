@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pl"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstraCloud Spring</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<header>
+    <div class="head">
+        <a href="/"><img src="/assets/img/astracloud_logo.svg" alt="astra" width="200"></a>
+    </div>
+    <nav>
+        <p><a href="/">Strona główna</a></p>
+        <p id="diskHeaderAction"><a href="/account">Dysk</a></p>
+        <p sec:authorize="isAnonymous()" id="loginHeaderAction"><a href="/login">Logowanie</a></p>
+        <p sec:authorize="isAnonymous()" id="registerHeaderAction"><a href="/register">Rejestracja</a></p>
+        <p sec:authorize="isAuthenticated()" id="logoutHeaderAction"><a href="/api/logout">Wyloguj</a></p>
+    </nav>
+</header>
+<main class="myForm">
+    <form id="registerForm" action="/api/register" method="POST">
+        <legend>Rejestracja</legend><br>
+        <label for="email">Adres e-mail:</label><br>
+        <input type="email" name="email" id="email" required><br>
+        <label for="username">Login:</label><br>
+        <input type="text" name="username" id="username" required><br>
+        <label for="password">Hasło:</label><br>
+        <input type="password" name="password" id="password" required minlength=8><br>
+        <label for="passwordConfirm">Powtórz hasło:</label><br>
+        <input type="password" name="passwordConfirm" id="passwordConfirm" required minlength=8><br>
+        <button type="submit">Zarejestruj</button>
+<!--        <script src="static/register.js"></script>-->
+    </form>
+    <div id="jsCode"></div>
+</main>
+<footer>
+    <!--<script src="static/version.js"></script>-->
+    <p>astracloud spring indev</p>
+</footer>
+
+<script>
+    const form = document.getElementById("registerForm");
+    const errorMessage = document.getElementById("jsCode");
+
+    // wacky workaround na nieodświeżanie strony w mikrosekundę od kliknięcia submit
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const emailVal = document.getElementById("email").value;
+        const loginVal = document.getElementById("username").value;
+        const passwordVal = document.getElementById("password").value;
+        const passwordConfirmVal = document.getElementById("passwordConfirm").value;
+
+        errorMessage.style.display = "none";
+
+        fetch("/api/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: emailVal, username: loginVal, password: passwordVal, passwordConfirm: passwordConfirmVal })
+        })
+            .then(async (res) => {
+                const data = await res.json();
+
+                if (res.ok) {
+                    // udało sie
+                    errorMessage.style.color = "#FFFFFF";
+                    errorMessage.innerText = "Sukces! Przekierowywanie...";
+                    errorMessage.style.display = "block";
+
+                    // po 1.5 sekundy kierujemy na login
+                    setTimeout(() => {
+                        window.location.href = "/login";
+                    }, 1500);
+                } else {
+                    // coś poszło nie tak
+                    errorMessage.style.color = "#ff5252"; // czerwony
+                    errorMessage.innerText = data.error || "Błąd podczas rejestracji. Spróbuj ponownie.";
+                    errorMessage.style.display = "block";
+                }
+            })
+            .catch((err) => {
+                // nie ma nawet komunikacji
+                errorMessage.style.color = "#ff5252";
+                errorMessage.innerText = "Błąd połączenia z serwerem. Spróbuj ponownie.";
+                errorMessage.style.display = "block";
+            });
+    });
+</script>
+</body>
+</html>

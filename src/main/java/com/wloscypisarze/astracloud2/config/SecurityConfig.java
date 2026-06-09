@@ -21,14 +21,14 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // tymczasowo wyłączamy csrf
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/error", "/assets/**", "/index.html", "/login.html", "/register.html", "/api/register").permitAll()
+                        .requestMatchers("/", "/error", "/assets/**", "/index.html", "/login", "/register", "/api/register").permitAll()
                         .anyRequest().authenticated() // cała reszta wymaga bycia człowiekiem uwierzytelnionym
                 )
                 .formLogin(form -> form
-                        .loginPage("/login.html") // strona logowania
+                        .loginPage("/login") // strona logowania
                         .loginProcessingUrl("/api/login") // POST z formularza
                         .defaultSuccessUrl("/account", true)
-                        .failureUrl("/login.html?error=true")
+                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
