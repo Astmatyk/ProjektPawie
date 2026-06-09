@@ -1,0 +1,364 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap');
+
+/* style ogólne */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #121212;
+}
+
+main {
+    padding: 10px;
+    height: 100%;
+}
+
+h1, p, h2, h4, h6, input {
+    color: #E0E0E0;
+}
+
+/* maintenance a70 */
+/*.maintenance {
+    border-radius: 10px;
+    background-color: lightcoral;
+    border: 2px solid white;
+    color: white;
+    padding: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}*/
+/* experimental blur 03-2026*/
+.maintenance {
+    border-radius: 12px;
+
+    background: linear-gradient(
+            135deg,
+            rgba(255, 120, 120, 0.45),
+            rgba(255, 160, 160, 0.25)
+    );
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: white;
+
+    padding: 10px 14px;
+
+    box-shadow:
+            0 4px 20px rgba(0,0,0,0.15),
+            inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+/* header strony */
+header {
+    background-color: #1E1E1E;
+    padding-top: 5px;
+    padding-left: 15px;
+    border-radius: 5px;
+    box-shadow: 1px 1px 50px rgba(169, 169, 169, 0.274);
+}
+
+.head>* {
+    padding: 5px;
+}
+
+/* pasek nawigacyjny */
+nav {
+    padding-left: 5px;
+    padding-right: 10px;
+}
+
+nav>p {
+    display: inline-block;
+}
+
+nav>p a {
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 14px;
+    color: #000;
+    text-decoration: none;
+    background-color: #e0e8f0;
+    border-radius: 5px;
+    padding: 7px;
+    transition:
+            background 0.3s ease,
+            box-shadow 0.3s ease;
+}
+
+nav>p:hover a {
+    padding-left: 5px;
+    padding-right: 5px;
+    color: #e0e8f0;
+    text-decoration: none;
+    background-color: #333;
+    box-shadow: 0px 0px 10px rgba(169, 169, 169, 0.7);
+    border-radius: 5px;
+    padding: 7px;
+}
+
+footer>p {
+    text-align: right;
+    padding-right: 10px;
+    margin-bottom: 5px;
+    color: darkgrey;
+}
+
+#logoutHeaderAction {
+    display: none;
+}
+
+/* main */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.uploaderDialog {
+    width: 20%;
+}
+
+#uploadButton {
+    background-color: purple;
+    color: white;
+    border: none;
+    width: 76px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, width 0.3s ease;
+    padding: 10px 20px 10px 20px;
+    margin: 10px 5px 10px 0px;
+}
+
+#uploadButton:hover {
+    background-color: rgb(56, 47, 139);
+}
+
+#uploadBar {
+    background-color: rgb(62,52,158);
+    width: 0%;
+    height: 0px;
+    border-radius: 25px;
+    display: block;
+    transition: width 1s ease, height 0.3s ease;
+}
+
+#maxupload {
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.filelistDialog {
+    width: 80%;
+}
+
+@media (orientation: portrait), (max-width: 768px) {
+    .uploaderDialog,
+    .filelistDialog {
+        width: 100%;
+    }
+}
+
+#asc, #desc {
+    cursor: pointer;
+    color: white;
+}
+
+#asc:hover, #desc:hover {
+    transition: color 0.3s ease;
+}
+
+/* lista plików */
+.flcontainer {
+    border-radius: 20px;
+    border: 2px rgb(48, 48, 48) solid;
+    padding: 20px;
+}
+
+.flheader>* {
+    display: inline-block;
+}
+
+.flheader>.white {
+    color: white;
+}
+
+#searchInput {
+    color: black;
+}
+
+.filelist {
+    padding-top: 10px;
+}
+
+.filelist a:link{
+    color: white;
+}
+
+.filelist a:visited{
+    color: gray;
+}
+
+li::marker {
+    color: white;
+}
+
+.listItem {
+    padding: 10px 20px 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    background-color: #1E1E1E;
+    transition: background-color 0.3s ease;
+    display: flex;
+}
+
+.listItem:hover {
+    background-color: #323232;
+}
+
+.deleteButton {
+    border-radius: 10px;
+    color: white;
+    background-color: #e74c3c;
+    margin-left: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: 2px solid black;
+    transition: background-color 0.3s ease;
+    margin-left: auto;
+}
+
+.deleteButton:hover {
+    background-color: #c0392b;
+}
+
+#chdate {
+    color: lightgray;
+    font-size: 12px;
+}
+
+/* formularz */
+.myForm {
+    /*background-color: #1E1E1E;*/
+    margin: auto;
+    margin-top: 100px;
+    /*box-shadow: 1px 1px 5px rgba(169, 169, 169, 0.274);*/
+    color: white;
+    font-weight: bold;
+    padding: 30px;
+    width: 40%;
+    border-radius: 5px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* experimental blur 03-2026*/
+    background: linear-gradient(
+            135deg,
+            rgba(40, 40, 40, 0.6),
+            rgba(30, 30, 30, 0.35)
+    );
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    box-shadow:
+            0 10px 40px rgba(0,0,0,0.35),
+            inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.myForm>form {
+    width: 70%;
+}
+
+form > input, form > label {
+    text-align: left;
+    margin-top: 5px;
+}
+
+form > legend {
+    text-align: center;
+}
+
+.myForm > form > input {
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    padding: 5px 10px 5px 10px;
+    border-radius: 10px;
+    height: 40px;
+    margin: 10px 0px 10px 0px;
+    width: 100%;
+    background-color: #353535;
+    transition: background-color ease 0.3s;
+}
+
+.myForm > form > input:hover {
+    background-color: #303030;
+}
+
+.myForm > form > button {
+    background-color: #353535;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+    transition: background-color ease 0.3s;
+}
+
+.myForm > form > button:hover {
+    background-color: #121212;
+}
+
+.myForm > p {
+    margin: 0px;
+}
+
+#jsCode {
+    padding: 10px;
+}
+
+/* strona główna */
+.indexMain{
+    width: 60%;
+    /*background-color: #1E1E1E;*/
+    padding: 20px;
+    margin: auto;
+    border-radius: 5px;
+    /*box-shadow: 1px 1px 5px rgba(169, 169, 169, 0.274);*/
+
+    /* experimental blur 03-2026 */
+    background: linear-gradient(
+            135deg,
+            rgba(40, 40, 40, 0.6),
+            rgba(30, 30, 30, 0.35)
+    );
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    box-shadow:
+            0 10px 40px rgba(0,0,0,0.35),
+            inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.indexMain ul li{
+    color: white;
+    font-weight: bold;
+}
+
+.indexMain a {
+    color: white;
+    transition: color ease 0.3s;
+}
+
+.indexMain a:hover {
+    color: teal;
+}

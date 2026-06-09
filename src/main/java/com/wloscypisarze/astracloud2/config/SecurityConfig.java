@@ -21,19 +21,19 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login.html", "/register.html", "/api/register").permitAll() // Dostępne dla każdego
-                        .anyRequest().authenticated() // Cała reszta wymaga logowania
+                        .requestMatchers("/index.html", "/login.html", "/register.html", "/api/register").permitAll()
+                        .anyRequest().permitAll() // ZMIENIC NA AUTHENTICATED cała reszta wymaga bycia człowiekiem uwierzytelnionym
                 )
                 .formLogin(form -> form
-                        .loginPage("/login.html")
-                        .loginProcessingUrl("/api/login") // Adres, na który formularz wyśle dane POST
-                        .defaultSuccessUrl("/index.html", true)
+                        .loginPage("/login.html") // strona logowania
+                        .loginProcessingUrl("/api/login") // POST z formularza
+                        .defaultSuccessUrl("/account.html", true)
                         .failureUrl("/login.html?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/api/logout")
-                        .logoutSuccessUrl("/login.html")
+                        .logoutSuccessUrl("/index.html")
                         .permitAll()
                 );
 
