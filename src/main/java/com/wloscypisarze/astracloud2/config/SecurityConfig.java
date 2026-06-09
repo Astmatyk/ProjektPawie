@@ -19,7 +19,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // tymczasowo wyłączamy csrf
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/error", "/assets/**", "/index.html", "/login.html", "/register.html", "/api/register").permitAll()
                         .anyRequest().authenticated() // cała reszta wymaga bycia człowiekiem uwierzytelnionym
