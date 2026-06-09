@@ -203,7 +203,7 @@ li::marker {
     color: white;
 }
 
-.listItem {
+.item {
     padding: 10px 20px 10px 20px;
     margin: 5px;
     border-radius: 5px;
@@ -212,7 +212,7 @@ li::marker {
     display: flex;
 }
 
-.listItem:hover {
+.item:hover {
     background-color: #323232;
 }
 
@@ -232,7 +232,7 @@ li::marker {
     background-color: #c0392b;
 }
 
-#chdate {
+.chdate {
     color: lightgray;
     font-size: 12px;
 }

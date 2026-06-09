@@ -197,10 +197,12 @@
         const html = fileList.map(file => {
             const readable = new Date(file.date * 1000).toLocaleString();
             return `
-	<span id="chdate">Data modyfikacji: ${readable}</span>
         <div class="listItem" data-id="${file.id}">
-            <a href="/uploads/${user}/${file.name}">${file.name} </a>
-	    <button class="deleteButton" data-id="${file.id}">Usuń</button>
+            <span class="chdate">Data modyfikacji: ${readable}</span>
+            <div class="item">
+                <a href="/uploads/${user}/${file.name}">${file.name} </a>
+	            <button class="deleteButton" data-id="${file.id}">Usuń</button>
+            </div>
         </div>
         `
         }).join('');
