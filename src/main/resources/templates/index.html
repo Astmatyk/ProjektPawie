@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pl"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstraCloud Spring</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<header>
+    <div class="head">
+        <a href="astracloud"><img src="/assets/img/astracloud_logo.svg" alt="astra" width="200"></a>
+    </div>
+    <nav>
+        <!--tu sie przyda thymeleaf do chowania przycisków wszelakich-->
+        <p><a href="/static">Strona główna</a></p>
+        <p id="diskHeaderAction"><a href="/account">Dysk</a></p>
+        <p sec:authorize="isAnonymous()" id="loginHeaderAction"><a href="/login.html">Logowanie</a></p>
+        <p sec:authorize="isAnonymous()" id="registerHeaderAction"><a href="/register.html">Rejestracja</a></p>
+        <p sec:authorize="isAuthenticated()" id="logoutHeaderAction"><a href="api/logout">Wyloguj</a></p>
+    </nav>
+</header>
+<main>
+    <div class="indexMain">
+        <h2>Witamy w <a href="https://youtu.be/X-vzlLD7b_0">AstraCloud</a>!</h2>
+        <h4>Zdecydowanie jednej z usług dysku w chmurze</h4>
+        <ul>
+            <li>Bezpieczeństwo</li>
+            <p>Podążamy za ideologią Keep It Stupid Simple - prosty kod to mniej punktów ataku</p>
+            <li>Szyfrowanie plików</li>
+            <p>może kiedyś</p>
+            <li>Konta użytkowników</li>
+            <p>możesz się logować i wylogowywać!</p>
+            <li>Nowoczesny design</li>
+            <p>Podążamy za najnowszymi trendami designu webowego</p>
+            <li>Powered by Java</li>
+            <p>Pancerny backend w potencjalnie najlepszym języku programowania dla maksimum bezpieczeństwa i wydajności</p>
+        </ul>
+    </div>
+</main>
+<footer>
+<!--    <script src="static/version.js"></script>-->
+    <p>astracloud spring indev</p>
+</footer>
+<!--<script src="static/headerHandler.js"></script>-->
+</body>
+</html>

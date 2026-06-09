@@ -1,40 +1,63 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AstraCloud Spring</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #1a1a1a; color: white; }
-        .upload-container, .filelist { margin-top: 20px; }
-        .listItem { background: #333; padding: 10px; margin: 5px 0; border-radius: 5px; }
-        a { color: #00bcd4; text-decoration: none; }
-        button { padding: 5px 10px; margin-left: 10px; color: white; background-color: #444444; border: none; border-radius: 5px;}
-        #uploadBar { background: #00bcd4; transition: width 0.3s; }
-        .filelist { background-color: dimgray; border-radius: 10px; padding: 10px; }
-        .upload-container, .sort-container { background-color: dimgray; padding: 10px; width: fit-content; border-radius: 10px; }
-    </style>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.6.20/dist/fetch.umd.min.js"></script>
 </head>
 <body>
-<h1>AstraCloud</h1>
-
-<div class="sort-container">
-    <p>Sortuj</p>
-    <button id="asc">rosnąco</button>
-    <button id="desc">malejąco</button>
-    <input type="text" id="searchInput" placeholder="Szukaj pliku...">
-</div>
-
-<div class="upload-container">
-    <p>Prześlij plik!</p>
-    <input type="file" id="fileInput">
-    <button id="uploadButton" style="background-color: purple; color: white; width: 76px;">Wyślij</button>
-    <div style="width: 100%; background: #444; margin-top: 5px;">
-        <div id="uploadBar" style="height: 0px; width: 0%;"></div>
+<header>
+    <div class="head">
+        <a href="astracloud"><img src="/assets/img/astracloud_logo.svg" alt="astra" width="200"></a>
     </div>
-</div>
+    <nav>
+        <p><a href="/">Strona główna</a></p>
+        <p id="diskHeaderAction"><a href="/account">Dysk</a></p>
+        <p sec:authorize="isAnonymous()" id="loginHeaderAction"><a href="login.html">Logowanie</a></p>
+        <p sec:authorize="isAnonymous()" id="registerHeaderAction"><a href="register.html">Rejestracja</a></p>
+        <p id="logoutHeaderAction"><a href="api/logout">Wyloguj</a></p>
+    </nav>
+</header>
+<main>
+    <div class="container">
+        <div class="uploaderDialog">
+            <h2>Wyślij plik</h2>
+            <input type="file" id="fileInput">
+            <h6 id="maxupload">Maksymalny rozmiar: 2GB</h6>
+            <button id="uploadButton">Wyślij</button>
+            <span id="uploadBar"></span>
+            <span id="status"></span>
+        </div>
+        <div class="filelistDialog">
+            <h2>Lista plików</h2>
+            <div class="flcontainer">
+                <div class="flheader">
+                    <span class="white"><strong>Sortuj:</strong></span>
+                    <span id="asc"> rosnąco </span>
+                    <span id="desc"> malejąco </span>
+                    <br><br>
+                    <span class="white"><strong>Szukaj: </strong></span>
+                    <form id="sForm">
+                        <input type="text" name="search" id="searchInput" placeholder="nazwa...">
+                    </form>
+                </div>
+                <div class="filelist"></div>
+            </div>
+        </div>
+    </div>
+</main>
+<footer>
+    <!--<script src="static/version.js"></script>-->
+    <p>astracloud spring indev</p>
+</footer>
+    <!--<script src="static/main.js"></script>-->
+    <!--<script src="static/headerHandler.js"></script>-->
 
-<div class="filelist"></div>
-
+<!--ogólnie to poniżej to reinkarnacja scripts/script.js na potrzeby testow siedzi tu póki co-->
 <script>
 
     const ascObj = document.getElementById('asc');
@@ -52,18 +75,18 @@
     let sortMode = 0;
     let uploading = 0;
 
-    // Pobranie aktualnie zalogowanego użytkownika z backendu
+    // endpoint na zalogowanego usera
     fetch('/api/me')
         .then(res => {
             if (!res.ok) {
-                window.location.href = '/login.html'; // Przekieruj, jeśli brak sesji
+                window.location.href = '/login.html';
                 throw new Error("Brak sesji");
             }
             return res.json();
         })
         .then(data => {
             user = data.login;
-            fetchList(); // Pobierz pliki dopiero, gdy wiemy kim jesteśmy
+            fetchList();
         })
         .catch(err => console.error(err));
 
@@ -210,7 +233,6 @@
             return 0;
         }
 
-        //oczywiste
         switch (sortMode) {
             case 0:
                 newlist.sort(asc);

@@ -103,9 +103,10 @@ footer>p {
     color: darkgrey;
 }
 
-#logoutHeaderAction {
-    display: none;
-}
+/*teraz robi to thymeleaf*/
+/*#logoutHeaderAction {*/
+/*    display: none;*/
+/*}*/
 
 /* main */
 .container {
