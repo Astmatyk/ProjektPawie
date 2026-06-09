@@ -74,7 +74,7 @@ public class FileController {
                     stat.put("name", name);
                     stat.put("size", file.length());
                     stat.put("extension", name.substring(name.lastIndexOf(".") + 1).toLowerCase());
-                    stat.put("date", file.lastModified() / 1000); // Unix timestamp
+                    stat.put("date", file.lastModified() / 1000);
                     fileInfos.add(stat);
                 }
             }
@@ -92,7 +92,7 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("status", "error", "message", "File not found"));
         }
 
-        // zabezpieczenie ../
+        // cleanpath zabezpiecza przed ../
         filename = StringUtils.cleanPath(filename);
         File file = new File(UPLOAD_FOLDER + "/" + user + "/" + filename);
 

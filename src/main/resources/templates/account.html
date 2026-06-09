@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AstraCloud Spring</title>
     <link rel="stylesheet" href="/assets/css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.6.20/dist/fetch.umd.min.js"></script>
 </head>
 <body>
 <header>
@@ -27,7 +26,7 @@
         <div class="uploaderDialog">
             <h2>Wyślij plik</h2>
             <input type="file" id="fileInput">
-            <h6 id="maxupload">Maksymalny rozmiar: 2GB</h6>
+            <h6 id="maxupload">Maksymalny rozmiar: 500MB</h6>
             <button id="uploadButton">Wyślij</button>
             <span id="uploadBar"></span>
             <span id="status"></span>
@@ -57,7 +56,7 @@
     <!--<script src="static/main.js"></script>-->
     <!--<script src="static/headerHandler.js"></script>-->
 
-<!--ogólnie to poniżej to reinkarnacja scripts/script.js na potrzeby testow siedzi tu póki co-->
+<!--to poniżej to tymczasowa reinkarnacja scripts/script.js na potrzeby testow-->
 <script>
 
     const ascObj = document.getElementById('asc');
@@ -168,9 +167,10 @@
 
     // usuwanie!
     function deleteFile(fileId, button) {
-        if (!confirm("Na pewno tępy chuju?")) return;
+        //R.I.P. stary komunikat
+        if (!confirm("Na pewno?")) return;
         console.log("Usuwam ID " + fileId);
-        //backend sprawdza poprawność tokenu i wychwyca śmieszne ../
+
         fetch('/api/delete', {
             method: 'POST',
             headers: {

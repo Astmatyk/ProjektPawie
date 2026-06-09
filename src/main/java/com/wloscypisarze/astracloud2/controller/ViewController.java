@@ -15,7 +15,6 @@ public class ViewController {
 
     @GetMapping("/account")
     public String getAccountPage(Principal principal, Model model) {
-        //nie dostaniemy sie tu bez zalogowania wiec nie wrzutam tu if null xd
         //w założeniu thymeleaf powinien to potem czytać ale jeszcze nie czyta
         model.addAttribute("username", principal.getName());
 

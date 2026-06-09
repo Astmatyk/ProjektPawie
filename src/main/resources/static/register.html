@@ -44,13 +44,13 @@
     const przycisk = document.getElementById("przycisk");
     const errorMessage = document.getElementById("errorMessage");
 
+    // wacky workaround na nieodświeżanie strony w mikrosekundę od kliknięcia submit
     form.addEventListener("submit", (event) => {
         event.preventDefault();
 
         const loginVal = document.getElementById("username").value;
         const passwordVal = document.getElementById("password").value;
 
-        // Zabezpieczenie przed podwójnym kliknięciem
         przycisk.disabled = true;
         przycisk.innerText = "Rejestrowanie...";
         errorMessage.style.display = "none";
@@ -66,16 +66,19 @@
                 const data = await res.json();
 
                 if (res.ok) {
+                    // udało sie
                     errorMessage.style.color = "#4CAF50"; // zielony
-                    errorMessage.innerText = "Konto utworzone z sukcesem! Przekierowywanie...";
+                    errorMessage.innerText = "Sukces! Przekierowywanie...";
                     errorMessage.style.display = "block";
 
+                    // po 1.5 sekundy kierujemy na login
                     setTimeout(() => {
                         window.location.href = "/login.html";
                     }, 1500);
                 } else {
+                    // coś poszło nie tak
                     errorMessage.style.color = "#ff5252"; // czerwony
-                    errorMessage.innerText = data.error || "Wystąpił błąd podczas rejestracji.";
+                    errorMessage.innerText = data.error || "Błąd podczas rejestracji. Spróbuj ponownie.";
                     errorMessage.style.display = "block";
 
                     przycisk.disabled = false;
@@ -83,9 +86,9 @@
                 }
             })
             .catch((err) => {
-                // Błąd sieci
+                // nie ma nawet komunikacji
                 errorMessage.style.color = "#ff5252";
-                errorMessage.innerText = "Błąd połączenia z serwerem.";
+                errorMessage.innerText = "Błąd połączenia z serwerem. Spróbuj ponownie.";
                 errorMessage.style.display = "block";
 
                 przycisk.disabled = false;

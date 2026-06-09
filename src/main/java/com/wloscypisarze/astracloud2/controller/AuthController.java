@@ -37,7 +37,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "Login już istnieje"));
         }
 
-        // tworzenie użytkownika w spring security
+        // tworzenie użytkownika
         UserDetails newUser = User.builder()
                 .username(login)
                 .password(passwordEncoder.encode(password))
@@ -51,7 +51,6 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Rejestracja zakończona pomyślnie"));
     }
 
-    // endpoint dla frontendu, żeby wiedział, kto jest zalogowany
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Principal principal) {
         if (principal == null) {
