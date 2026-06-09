@@ -118,6 +118,7 @@ public class FileController {
                     stat.put("name", file.getName());
                     stat.put("size", file.length());
                     stat.put("extension", file.getName().substring(file.getName().lastIndexOf(".") + 1).toLowerCase());
+                    stat.put("date", file.lastModified() / 1000);
                     matchingFiles.add(stat);
                 }
             }
