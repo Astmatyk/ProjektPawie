@@ -182,6 +182,7 @@
             .then(result => {
                 if (result.status === 'ok') {
                     button.closest('.listItem').remove();
+                    fileList = fileList.filter(file => file.id !== fileId);
                 } else {
                     console.log("Błąd usuwania " + result.message);
                     alert('Błąd: ' + result.message);
