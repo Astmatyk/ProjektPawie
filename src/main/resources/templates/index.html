@@ -8,7 +8,7 @@
     <title>AstraCloud Spring</title>
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body>
+<body th:classappend="${session.theme != null ? session.theme : 'dark-theme'}">
 <header>
     <div class="head">
         <a href="/"><img src="/assets/img/astracloud_logo.svg" alt="astra" width="200"></a>
@@ -20,6 +20,16 @@
         <p sec:authorize="isAnonymous()" id="loginHeaderAction"><a href="/login">Logowanie</a></p>
         <p sec:authorize="isAnonymous()" id="registerHeaderAction"><a href="/register">Rejestracja</a></p>
         <p sec:authorize="isAuthenticated()" id="logoutHeaderAction"><a href="api/logout">Wyloguj</a></p>
+        <!-- Przycisk zmiany motywu -->
+        <p style="display:inline;">
+        <form th:action="@{/theme/switch}" method="post" style="display:inline;">
+            <input type="hidden" name="theme"
+                   th:value="${session.theme == 'dark-theme' ? 'light-theme' : (session.theme == 'light-theme' ? 'high-contrast' : 'dark-theme')}"/>
+            <button type="submit" class="theme-toggle">
+                <span th:text="${session.theme == 'dark-theme' ? 'Ciemny' : (session.theme == 'light-theme' ? 'Jasny' : 'Kontrast')}"></span>
+            </button>
+        </form>
+        </p>
     </nav>
 </header>
 <main>

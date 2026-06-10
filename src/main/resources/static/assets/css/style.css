@@ -1,9 +1,167 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap');
 
-/* style ogólne */
+/* ===== ZMIENNE CSS (MOTYW DOMYŚLNY – CIEMNY) ===== */
+:root {
+    /* tła */
+    --bg-primary: #121212;
+    --bg-surface: #1E1E1E;
+    --bg-surface-hover: #323232;
+
+    /* tekst */
+    --text-primary: #E0E0E0;
+    --text-secondary: darkgrey;
+    --text-button: #000;            /* kolor napisów w przyciskach nawigacji (domyślnie) */
+    --text-inverted: white;         /* tekst na ciemnym tle (biały) */
+
+    /* akcenty */
+    --accent: purple;
+    --accent-hover: rgb(56, 47, 139);
+    --upload-bar: rgb(62, 52, 158);
+    --link-hover: teal;
+
+    /* formularze */
+    --input-bg: #353535;
+    --input-bg-hover: #303030;
+    --input-text: white;
+    --button-bg: #353535;
+    --button-bg-hover: #121212;
+    --button-text: white;
+
+    /* danger (przycisk usuwania) */
+    --danger: #e74c3c;
+    --danger-hover: #c0392b;
+
+    /* nawigacja */
+    --nav-bg: #e0e8f0;
+    --nav-text: #000;
+    --nav-hover-bg: #333;
+    --nav-hover-text: #e0e8f0;
+    --nav-shadow: rgba(169, 169, 169, 0.7);
+
+    /* obramowania i cienie */
+    --border-color: rgb(48, 48, 48);
+    --header-shadow: rgba(169, 169, 169, 0.274);
+
+    /* komponenty z efektem blura (maintenance, formularze, index) */
+    --blur-surface-start: rgba(40, 40, 40, 0.6);
+    --blur-surface-end: rgba(30, 30, 30, 0.35);
+    --blur-border: rgba(255, 255, 255, 0.08);
+    --blur-shadow-1: rgba(0, 0, 0, 0.35);
+    --blur-shadow-2: rgba(255, 255, 255, 0.05);
+
+    /* maintenance (specyficzne) */
+    --maintenance-start: rgba(255, 120, 120, 0.45);
+    --maintenance-end: rgba(255, 160, 160, 0.25);
+    --maintenance-border: rgba(255, 255, 255, 0.35);
+    --maintenance-shadow-1: rgba(0, 0, 0, 0.15);
+    --maintenance-shadow-2: rgba(255, 255, 255, 0.2);
+
+    /* odnośniki (lista plików) */
+    --filelink: white;
+    --filelink-visited: gray;
+}
+
+body.high-contrast {
+    --bg-primary: #000000;
+    --bg-surface: #1a1a1a;
+    --bg-surface-hover: #333333;
+
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --text-button: #000000;
+    --text-inverted: #000000;
+
+    --accent: #ffff00;
+    --accent-hover: #ffcc00;
+    --upload-bar: #ffff00;
+    --link-hover: #ffff00;
+
+    --input-bg: #000000;
+    --input-bg-hover: #333333;
+    --input-text: #ffffff;
+    --button-bg: #ffff00;
+    --button-bg-hover: #ffcc00;
+    --button-text: #000000;
+
+    --danger: #ff4444;
+    --danger-hover: #cc0000;
+
+    --nav-bg: #000000;
+    --nav-text: #ffff00;
+    --nav-hover-bg: #ffff00;
+    --nav-hover-text: #000000;
+    --nav-shadow: rgba(255, 255, 0, 0.5);
+
+    --border-color: #ffff00;
+    --header-shadow: rgba(255, 255, 0, 0.3);
+
+    /* blur itd. możesz zostawić bez zmian lub dostosować */
+    --blur-surface-start: rgba(0, 0, 0, 0.9);
+    --blur-surface-end: rgba(30, 30, 30, 0.8);
+    --blur-border: rgba(255, 255, 0, 0.5);
+    --blur-shadow-1: rgba(0,0,0,0.5);
+    --blur-shadow-2: rgba(255,255,0,0.1);
+
+    --filelink: #ffff00;
+    --filelink-visited: #cccccc;
+}
+
+/* ===== MOTYW JASNY ===== */
+body.light-theme {
+    --bg-primary: #ffffff;
+    --bg-surface: #f0f0f0;
+    --bg-surface-hover: #e2e2e2;
+
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --text-button: #212529;
+    --text-inverted: #000;
+
+    --accent: #0d6efd;
+    --accent-hover: #0b5ed7;
+    --upload-bar: #6610f2;         /* można zmienić */
+    --link-hover: #0d6efd;
+
+    --input-bg: #ffffff;
+    --input-bg-hover: #e9ecef;
+    --input-text: #212529;
+    --button-bg: #e9ecef;
+    --button-bg-hover: #dee2e6;
+    --button-text: #212529;
+
+    --danger: #dc3545;
+    --danger-hover: #bb2d3b;
+
+    --nav-bg: #e9ecef;
+    --nav-text: #212529;
+    --nav-hover-bg: #0d6efd;
+    --nav-hover-text: #ffffff;
+    --nav-shadow: rgba(0, 0, 0, 0.1);
+
+    --border-color: #dee2e6;
+    --header-shadow: rgba(0, 0, 0, 0.075);
+
+    --blur-surface-start: rgba(255, 255, 255, 0.7);
+    --blur-surface-end: rgba(240, 240, 240, 0.5);
+    --blur-border: rgba(0, 0, 0, 0.1);
+    --blur-shadow-1: rgba(0, 0, 0, 0.1);
+    --blur-shadow-2: rgba(0, 0, 0, 0.02);
+
+    --maintenance-start: rgba(255, 120, 120, 0.5);
+    --maintenance-end: rgba(255, 160, 160, 0.3);
+    --maintenance-border: rgba(0, 0, 0, 0.15);
+    --maintenance-shadow-1: rgba(0, 0, 0, 0.1);
+    --maintenance-shadow-2: rgba(255, 255, 255, 0.15);
+
+    --filelink: #0d6efd;
+    --filelink-visited: #6c757d;
+}
+
+/* ===== STYLE OGÓLNE ===== */
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #121212;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 main {
@@ -12,49 +170,39 @@ main {
 }
 
 h1, p, h2, h4, h6, input {
-    color: #E0E0E0;
+    color: var(--text-primary);
 }
 
-/* maintenance a70 */
-/*.maintenance {
-    border-radius: 10px;
-    background-color: lightcoral;
-    border: 2px solid white;
-    color: white;
-    padding: 10px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-}*/
-/* experimental blur 03-2026*/
+/* maintenance – używa własnych zmiennych */
 .maintenance {
     border-radius: 12px;
 
     background: linear-gradient(
             135deg,
-            rgba(255, 120, 120, 0.45),
-            rgba(255, 160, 160, 0.25)
+            var(--maintenance-start),
+            var(--maintenance-end)
     );
 
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    color: white;
+    border: 1px solid var(--maintenance-border);
+    color: var(--text-inverted);
 
     padding: 10px 14px;
 
     box-shadow:
-            0 4px 20px rgba(0,0,0,0.15),
-            inset 0 1px 0 rgba(255,255,255,0.2);
+            0 4px 20px var(--maintenance-shadow-1),
+            inset 0 1px 0 var(--maintenance-shadow-2);
 }
 
 /* header strony */
 header {
-    background-color: #1E1E1E;
+    background-color: var(--bg-surface);
     padding-top: 5px;
     padding-left: 15px;
     border-radius: 5px;
-    box-shadow: 1px 1px 50px rgba(169, 169, 169, 0.274);
+    box-shadow: 1px 1px 50px var(--header-shadow);
 }
 
 .head>* {
@@ -75,9 +223,9 @@ nav>p a {
     padding-left: 5px;
     padding-right: 5px;
     font-size: 14px;
-    color: #000;
+    color: var(--nav-text);
     text-decoration: none;
-    background-color: #e0e8f0;
+    background-color: var(--nav-bg);
     border-radius: 5px;
     padding: 7px;
     transition:
@@ -88,10 +236,10 @@ nav>p a {
 nav>p:hover a {
     padding-left: 5px;
     padding-right: 5px;
-    color: #e0e8f0;
+    color: var(--nav-hover-text);
     text-decoration: none;
-    background-color: #333;
-    box-shadow: 0px 0px 10px rgba(169, 169, 169, 0.7);
+    background-color: var(--nav-hover-bg);
+    box-shadow: 0px 0px 10px var(--nav-shadow);
     border-radius: 5px;
     padding: 7px;
 }
@@ -100,15 +248,10 @@ footer>p {
     text-align: right;
     padding-right: 10px;
     margin-bottom: 5px;
-    color: darkgrey;
+    color: var(--text-secondary);
 }
 
-/*teraz robi to thymeleaf*/
-/*#logoutHeaderAction {*/
-/*    display: none;*/
-/*}*/
-
-/* main */
+/* main – layout elastyczny */
 .container {
     display: flex;
     flex-wrap: wrap;
@@ -119,8 +262,8 @@ footer>p {
 }
 
 #uploadButton {
-    background-color: purple;
-    color: white;
+    background-color: var(--accent);
+    color: var(--text-inverted);
     border: none;
     width: 76px;
     border-radius: 5px;
@@ -131,11 +274,11 @@ footer>p {
 }
 
 #uploadButton:hover {
-    background-color: rgb(56, 47, 139);
+    background-color: var(--accent-hover);
 }
 
 #uploadBar {
-    background-color: rgb(62,52,158);
+    background-color: var(--upload-bar);
     width: 0%;
     height: 0px;
     border-radius: 25px;
@@ -161,17 +304,18 @@ footer>p {
 
 #asc, #desc {
     cursor: pointer;
-    color: white;
+    color: var(--text-primary);
 }
 
 #asc:hover, #desc:hover {
+    color: var(--accent);
     transition: color 0.3s ease;
 }
 
 /* lista plików */
 .flcontainer {
     border-radius: 20px;
-    border: 2px rgb(48, 48, 48) solid;
+    border: 2px solid var(--border-color);
     padding: 20px;
 }
 
@@ -180,11 +324,13 @@ footer>p {
 }
 
 .flheader>.white {
-    color: white;
+    color: var(--text-primary);
 }
 
 #searchInput {
-    color: black;
+    color: var(--text-button);   /* przy polu input czarny na jasnym, ale tu kontekst? Najlepiej nadać zmienną */
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
 }
 
 .filelist {
@@ -192,58 +338,56 @@ footer>p {
 }
 
 .filelist a:link{
-    color: white;
+    color: var(--filelink);
 }
 
 .filelist a:visited{
-    color: gray;
+    color: var(--filelink-visited);
 }
 
 li::marker {
-    color: white;
+    color: var(--text-primary);
 }
 
 .item {
     padding: 10px 20px 10px 20px;
     margin: 5px;
     border-radius: 5px;
-    background-color: #1E1E1E;
+    background-color: var(--bg-surface);
     transition: background-color 0.3s ease;
     display: flex;
+    align-items: center;
 }
 
 .item:hover {
-    background-color: #323232;
+    background-color: var(--bg-surface-hover);
 }
 
 .deleteButton {
     border-radius: 10px;
-    color: white;
-    background-color: #e74c3c;
-    margin-left: 5px;
+    color: var(--text-inverted);
+    background-color: var(--danger);
+    margin-left: auto;
     padding-left: 10px;
     padding-right: 10px;
     border: 2px solid black;
     transition: background-color 0.3s ease;
-    margin-left: auto;
 }
 
 .deleteButton:hover {
-    background-color: #c0392b;
+    background-color: var(--danger-hover);
 }
 
 .chdate {
-    color: lightgray;
+    color: var(--text-secondary);
     font-size: 12px;
 }
 
 /* formularz */
 .myForm {
-    /*background-color: #1E1E1E;*/
     margin: auto;
     margin-top: 100px;
-    /*box-shadow: 1px 1px 5px rgba(169, 169, 169, 0.274);*/
-    color: white;
+    color: var(--text-primary);
     font-weight: bold;
     padding: 30px;
     width: 40%;
@@ -253,21 +397,20 @@ li::marker {
     flex-direction: column;
     align-items: center;
 
-    /* experimental blur 03-2026*/
     background: linear-gradient(
             135deg,
-            rgba(40, 40, 40, 0.6),
-            rgba(30, 30, 30, 0.35)
+            var(--blur-surface-start),
+            var(--blur-surface-end)
     );
 
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
 
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid var(--blur-border);
 
     box-shadow:
-            0 10px 40px rgba(0,0,0,0.35),
-            inset 0 1px 0 rgba(255,255,255,0.05);
+            0 10px 40px var(--blur-shadow-1),
+            inset 0 1px 0 var(--blur-shadow-2);
 }
 
 .myForm>form {
@@ -284,8 +427,8 @@ form > legend {
 }
 
 .myForm > form > input {
-    color: white;
-    background-color: black;
+    color: var(--input-text);
+    background-color: var(--input-bg);
     outline: none;
     border: none;
     padding: 5px 10px 5px 10px;
@@ -293,17 +436,16 @@ form > legend {
     height: 40px;
     margin: 10px 0px 10px 0px;
     width: 100%;
-    background-color: #353535;
     transition: background-color ease 0.3s;
 }
 
 .myForm > form > input:hover {
-    background-color: #303030;
+    background-color: var(--input-bg-hover);
 }
 
 .myForm > form > button {
-    background-color: #353535;
-    color: white;
+    background-color: var(--button-bg);
+    color: var(--button-text);
     font-weight: bold;
     border: none;
     border-radius: 5px;
@@ -313,7 +455,7 @@ form > legend {
 }
 
 .myForm > form > button:hover {
-    background-color: #121212;
+    background-color: var(--button-bg-hover);
 }
 
 .myForm > p {
@@ -327,39 +469,36 @@ form > legend {
 /* strona główna */
 .indexMain{
     width: 60%;
-    /*background-color: #1E1E1E;*/
     padding: 20px;
     margin: auto;
     border-radius: 5px;
-    /*box-shadow: 1px 1px 5px rgba(169, 169, 169, 0.274);*/
 
-    /* experimental blur 03-2026 */
     background: linear-gradient(
             135deg,
-            rgba(40, 40, 40, 0.6),
-            rgba(30, 30, 30, 0.35)
+            var(--blur-surface-start),
+            var(--blur-surface-end)
     );
 
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
 
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid var(--blur-border);
 
     box-shadow:
-            0 10px 40px rgba(0,0,0,0.35),
-            inset 0 1px 0 rgba(255,255,255,0.05);
+            0 10px 40px var(--blur-shadow-1),
+            inset 0 1px 0 var(--blur-shadow-2);
 }
 
 .indexMain ul li{
-    color: white;
+    color: var(--text-primary);
     font-weight: bold;
 }
 
 .indexMain a {
-    color: white;
+    color: var(--text-primary);
     transition: color ease 0.3s;
 }
 
 .indexMain a:hover {
-    color: teal;
+    color: var(--link-hover);
 }
