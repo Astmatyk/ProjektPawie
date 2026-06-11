@@ -1,5 +1,7 @@
 package com.wloscypisarze.astracloud2.controller;
 
+import com.wloscypisarze.astracloud2.dto.RenameRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.DigestUtils;

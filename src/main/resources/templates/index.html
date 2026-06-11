@@ -10,27 +10,8 @@
 </head>
 <body th:classappend="${session.theme != null ? session.theme : 'dark-theme'}">
 <header>
-    <div class="head">
-        <a href="/"><img src="/assets/img/astracloud_logo.svg" alt="astra" width="200"></a>
-    </div>
-    <nav>
-        <!--tu sie przyda thymeleaf do chowania przycisków wszelakich-->
-        <p><a href="/">Strona główna</a></p>
-        <p id="diskHeaderAction"><a href="/account">Dysk</a></p>
-        <p sec:authorize="isAnonymous()" id="loginHeaderAction"><a href="/login">Logowanie</a></p>
-        <p sec:authorize="isAnonymous()" id="registerHeaderAction"><a href="/register">Rejestracja</a></p>
-        <p sec:authorize="isAuthenticated()" id="logoutHeaderAction"><a href="api/logout">Wyloguj</a></p>
-        <!-- Przycisk zmiany motywu -->
-        <p style="display:inline;">
-        <form th:action="@{/theme/switch}" method="post" style="display:inline;">
-            <input type="hidden" name="theme"
-                   th:value="${session.theme == 'dark-theme' ? 'light-theme' : (session.theme == 'light-theme' ? 'high-contrast' : 'dark-theme')}"/>
-            <button type="submit" class="theme-toggle">
-                <span th:text="${session.theme == 'dark-theme' ? 'Ciemny' : (session.theme == 'light-theme' ? 'Jasny' : 'Kontrast')}"></span>
-            </button>
-        </form>
-        </p>
-    </nav>
+    <div th:replace="~{fragments/header :: mainHead}"></div>
+    <div th:replace="~{fragments/header :: mainNav}"></div>
 </header>
 <main>
     <div class="indexMain">
@@ -51,9 +32,7 @@
     </div>
 </main>
 <footer>
-<!--    <script src="static/version.js"></script>-->
-    <p>astracloud spring indev</p>
+    <p th:replace="~{fragments/footer :: version}"></p>
 </footer>
-<!--<script src="static/headerHandler.js"></script>-->
 </body>
 </html>

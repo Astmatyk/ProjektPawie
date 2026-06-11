@@ -16,7 +16,6 @@ public class ViewController {
 
     @GetMapping("/account")
     public String getAccountPage(Principal principal, Model model) {
-        //w założeniu thymeleaf powinien to potem czytać ale jeszcze nie czyta
         model.addAttribute("username", principal.getName());
 
         return "account";

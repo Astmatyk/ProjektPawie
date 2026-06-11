@@ -95,12 +95,14 @@ body.high-contrast {
     --border-color: #ffff00;
     --header-shadow: rgba(255, 255, 0, 0.3);
 
-    /* blur itd. możesz zostawić bez zmian lub dostosować */
     --blur-surface-start: rgba(0, 0, 0, 0.9);
     --blur-surface-end: rgba(30, 30, 30, 0.8);
     --blur-border: rgba(255, 255, 0, 0.5);
     --blur-shadow-1: rgba(0,0,0,0.5);
     --blur-shadow-2: rgba(255,255,0,0.1);
+
+    --maintenance-start: #ffff00;
+    --maintenance-end: #ffff00;
 
     --filelink: #ffff00;
     --filelink-visited: #cccccc;
@@ -211,12 +213,15 @@ header {
 
 /* pasek nawigacyjny */
 nav {
+    display: flex;
+    align-items: center;
     padding-left: 5px;
     padding-right: 10px;
 }
 
 nav>p {
-    display: inline-block;
+    display: block;
+    margin: 10px 5px 15px 0;
 }
 
 nav>p a {
@@ -365,7 +370,7 @@ li::marker {
 
 .deleteButton {
     border-radius: 10px;
-    color: var(--text-inverted);
+    color: white;
     background-color: var(--danger);
     margin-left: auto;
     padding-left: 10px;
@@ -501,6 +506,35 @@ form > legend {
 
 .indexMain a:hover {
     color: var(--link-hover);
+}
+
+.theme-div {
+    margin-left: auto;
+}
+
+.theme-button {
+    color: var(--nav-text);
+    text-decoration: none;
+    background-color: var(--nav-bg);
+    border-radius: 5px;
+    padding: 7px;
+    transition:
+            background 0.3s ease,
+            box-shadow 0.3s ease;
+    border: none;
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.theme-button:hover {
+    padding-left: 5px;
+    padding-right: 5px;
+    color: var(--nav-hover-text);
+    text-decoration: none;
+    background-color: var(--nav-hover-bg);
+    box-shadow: 0px 0px 10px var(--nav-shadow);
+    border-radius: 5px;
+    padding: 7px;
 }
 
 .renameButton {
