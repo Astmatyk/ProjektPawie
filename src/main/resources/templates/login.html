@@ -29,30 +29,5 @@
   <p th:replace="~{fragments/footer :: version}"></p>
 </footer>
 
-<script>
-  const form = document.getElementById('loginForm');
-  const errorMessage = document.getElementById('jsCode');
-
-  form.addEventListener("submit", async function(event) {
-    const loginVal = document.getElementById("username").value.trim();
-    const passwordVal = document.getElementById("password").value;
-
-    errorMessage.style.display = "none";
-
-    console.log("uwaga login event");
-
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: loginVal, password: passwordVal })
-      });
-    } catch (error) {
-      errorMessage.innerHTML = "Sprawdź dane logowania.";
-    }
-  });
-
-</script>
-
 </body>
 </html>
