@@ -502,3 +502,17 @@ form > legend {
 .indexMain a:hover {
     color: var(--link-hover);
 }
+
+.renameButton {
+    color: var(--text-inverted);
+    background: transparent;
+    border: none;
+    padding-left: 10px;
+    padding-right: 10px;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.renameButton:hover {
+    color: var(--accent);
+    cursor: pointer;
+}

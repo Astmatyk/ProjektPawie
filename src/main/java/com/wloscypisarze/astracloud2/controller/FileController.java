@@ -40,6 +40,16 @@ public class FileController {
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file, Principal principal) {
         String user = principal.getName();
+
+        //walidacja nazwy pliku
+        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+        if (originalFilename.length() > 150) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "Nazwa pliku jest za długa (maksymalnie 150 znaków)"
+            ));
+        }
+
         if (!file.isEmpty()) {
             try {
                 File userDir = new File(UPLOAD_FOLDER, user);
@@ -124,5 +134,36 @@ public class FileController {
             }
         }
         return ResponseEntity.ok(matchingFiles);
+    }
+
+    @PostMapping("/rename")
+    public ResponseEntity<?> renameFile(@Valid @RequestBody RenameRequest request, Principal principal) {
+        String user = principal.getName();
+        String id = request.getId();
+        String newName = request.getNewName();
+
+        //
+        newName = StringUtils.cleanPath(newName);
+        if (newName.contains("/") || newName.contains("..")) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Niedozwolone znaki w nazwie pliku"));
+        }
+
+        String oldFilename = dehasher(id, user);
+        if (oldFilename == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("status", "error", "message", "Nie znaleziono pliku"));
+        }
+
+        File oldFile = new File(UPLOAD_FOLDER + "/" + user + "/" + oldFilename);
+        File newFile = new File(UPLOAD_FOLDER + "/" + user + "/" + newName);
+
+        if (newFile.exists()) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Plik o takiej nazwie już istnieje"));
+        }
+
+        if (oldFile.exists() && oldFile.renameTo(newFile)) {
+            return ResponseEntity.ok(Map.of("status", "ok"));
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "error", "message", "Nie udało się zmienić nazwy pliku"));
     }
 }

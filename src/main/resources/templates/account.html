@@ -116,6 +116,14 @@
         const file = uploadForm.files[0];
         if (!file) return;
 
+        //walidacja długości nazwy pliku
+        //zgodnie z tym co wprowadziliśmy na backendzie
+        if (file.name.length > 150) {
+            alert("Nazwa pliku jest za długa.\nMaksymalna ilość: 150 znaków.");
+            uploadForm.value = null;
+            return;
+        }
+
         console.log("Rozpoczynam przesyłanie...");
         uploading = 1;
 
@@ -200,10 +208,47 @@
             });
     }
 
+    // zmiana nazwy!
+    function renameFile(fileId, oldName) {
+        const newName = prompt("Wprowadź nową nazwę pliku:", oldName);
+        if (!newName || newName === oldName || newName.trim() === '') return;
+        if (newName.length > 150) {
+            alert("Nazwa pliku jest za długa.\nMaksymalna ilość: 150 znaków.");
+            uploadForm.value = null;
+            return;
+        }
+
+        console.log("Zmieniam nazwę ID " + fileId + " na " + newName);
+
+        fetch('/api/rename', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: fileId, newName: newName })
+        })
+            .then(res => res.json())
+            .then(result => {
+                if (result.status === 'ok') {
+                    //ponownie pobieramy listę plików
+                    fetchList();
+                } else {
+                    console.log("Błąd zmiany nazwy: " + result.message);
+                    alert('Błąd: ' + result.message);
+                }
+            });
+    }
+
     // lista plikow, budowanie html
     function buildList(fileList) {
         const flDiv = document.querySelector('.filelist');
         flDiv.innerHTML = "<h1>Wczytywanie...</h1>";
+
+        const editIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                        </svg>`;
+
         //dla kazdego pliku generujemy div'a
         const html = fileList.map(file => {
             const readable = new Date(file.date * 1000).toLocaleString();
@@ -212,6 +257,7 @@
             <span class="chdate">Data modyfikacji: ${readable}</span>
             <div class="item">
                 <a href="/uploads/${user}/${file.name}">${file.name} </a>
+                <button class="renameButton" data-id="${file.id}" data-name="${file.name}">${editIcon}</button>
 	            <button class="deleteButton" data-id="${file.id}">Usuń</button>
             </div>
         </div>
@@ -224,6 +270,15 @@
             button.addEventListener('click', () => {
                 const id = button.dataset.id;
                 deleteFile(id, button);
+            });
+        });
+
+        //eventy dla zmiany nazwy
+        document.querySelectorAll('.renameButton').forEach(button => {
+            button.addEventListener('click', () => {
+                const id = button.dataset.id;
+                const oldName = button.dataset.name;
+                renameFile(id, oldName);
             });
         });
     }
