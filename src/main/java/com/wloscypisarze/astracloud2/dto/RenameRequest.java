@@ -9,7 +9,7 @@ public class RenameRequest {
     @Getter
     @Setter
     @NotBlank(message = "Wymagane ID pliku")
-    private String id;
+    private Long id;
 
     @Getter
     @Setter

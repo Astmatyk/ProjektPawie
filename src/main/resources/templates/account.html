@@ -28,6 +28,7 @@
             <h2>Lista plików</h2>
             <div class="flcontainer">
                 <div class="flheader">
+                    <button id="createFolderBtn" style="margin-top: 10px; cursor: pointer;">+ Nowy folder</button>
                     <span class="white"><strong>Sortuj:</strong></span>
                     <span id="asc"> rosnąco </span>
                     <span id="desc"> malejąco </span>
@@ -59,35 +60,68 @@
     const searchInput = document.getElementById('searchInput');
     const searchForm = document.getElementById('sForm');
 
-    let user = null;
+    const createFolderBtn = document.getElementById('createFolderBtn');
+
     let fileList = [];
     let sortMode = 0;
     let uploading = 0;
 
-    // endpoint na zalogowanego usera
-    fetch('/api/me')
-        .then(res => {
-            if (!res.ok) {
-                window.location.href = '/login';
-                throw new Error("Brak sesji");
-            }
-            return res.json();
-        })
-        .then(data => {
-            user = data.login;
-            fetchList();
-        })
-        .catch(err => console.error(err));
+    //stan nawigacji i historia
+    let currentFolderId = null;
+    let pathStack = [];
 
     function fetchList() {
-        if (!user) return;
-        const fetchUrl = '/api/files/'+user;
-        fetch(fetchUrl)
+        const folderQuery = currentFolderId ? `?folderId=${currentFolderId}` : '';
+        const parentQuery = currentFolderId ? `?parentId=${currentFolderId}` : '';
+
+        // pobieramy jednocześnie foldery i pliki
+        Promise.all([
+            fetch('/api/folders' + parentQuery).then(res => res.json()),
+            fetch('/api/files' + folderQuery).then(res => res.json())
+        ]).then(([folders, files]) => {
+
+            // pliki mają typ file
+            files.forEach(f => f.type = 'file');
+
+            // buildlist buduje ui
+            fileList = [...folders, ...sortList(files, sortMode)];
+            buildList(fileList);
+        }).catch(err => console.error("Błąd pobierania listy:", err));
+    }
+
+    function enterFolder(folderId) {
+        pathStack.push(currentFolderId);
+        currentFolderId = folderId;
+        fetchList();
+    }
+
+    function goUp() {
+        if (pathStack.length > 0) {
+            currentFolderId = pathStack.pop();
+            fetchList();
+        }
+    }
+
+    // Tworzenie folderu
+    function createFolder() {
+        const folderName = prompt("Podaj nazwę nowego folderu:");
+        if (!folderName || folderName.trim() === '') return;
+
+        fetch('/api/folders/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                folderName: folderName,
+                parentId: currentFolderId
+            })
+        })
             .then(res => res.json())
-            .then(files => {
-                fileList = files;
-                fileList = sortList(fileList, sortMode);
-                buildList(fileList);
+            .then(result => {
+                if (result.status === 'success') {
+                    fetchList();
+                } else {
+                    alert('Błąd: ' + result.message);
+                }
             });
     }
 
@@ -161,6 +195,9 @@
 
         const formData = new FormData();
         formData.append('file', file);
+        if (currentFolderId) {
+            formData.append('folderId', currentFolderId);
+        }
         xhr.send(formData);
     }
 
@@ -221,7 +258,7 @@
     }
 
     // lista plikow, budowanie html
-    function buildList(fileList) {
+    function buildList(list) {
         const flDiv = document.querySelector('.filelist');
         flDiv.innerHTML = "<h1>Wczytywanie...</h1>";
 
@@ -230,19 +267,40 @@
                         <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
                         </svg>`;
 
-        //dla kazdego pliku generujemy div'a
-        const html = fileList.map(file => {
-            const readable = new Date(file.date * 1000).toLocaleString();
-            return `
-        <div class="listItem" data-id="${file.id}">
-            <span class="chdate">Data modyfikacji: ${readable}</span>
-            <div class="item">
-                <a href="/uploads/${user}/${file.name}">${file.name} </a>
-                <button class="renameButton" data-id="${file.id}" data-name="${file.name}">${editIcon}</button>
-	            <button class="deleteButton" data-id="${file.id}">Usuń</button>
-            </div>
-        </div>
-        `
+        let html = '';
+        if (currentFolderId !== null) {
+            html += `
+                    <div class="listItem" style="cursor: pointer; background: rgba(255,255,255,0.05);" onclick="goUp()">
+                        <div class="item">
+                            <strong>[..] Wróć (w górę)</strong>
+                        </div>
+                    </div>`;
+        }
+
+
+        //dla kazdego pliku i folderu generujemy div'a
+        html += list.map(item => {
+            if (item.type === 'folder') {
+                return `
+            <div class="listItem" data-id="${item.id}">
+                <div class="item">
+                    <span style="cursor:pointer; display:flex; align-items:center;" onclick="enterFolder(${item.id})">
+                        ./ <strong style="margin-left: 5px;">${item.name}</strong>
+                    </span>
+                    </div>
+            </div>`;
+            } else {
+                const readable = item.date ? new Date(item.date * 1000).toLocaleString() : 'Brak daty';
+                return `
+            <div class="listItem" data-id="${item.id}">
+                <span class="chdate">Data modyfikacji: ${readable}</span>
+                <div class="item">
+                    <a href="/api/download/${item.id}" target="_blank">${item.name}</a>
+                    <button class="renameButton" data-id="${item.id}" data-name="${item.name}">${editIcon}</button>
+                    <button class="deleteButton" data-id="${item.id}">Usuń</button>
+                </div>
+            </div>`;
+            }
         }).join('');
         flDiv.innerHTML = `${html}`;
 
@@ -310,12 +368,14 @@
         return fileList;
     }
 
+    if(createFolderBtn) createFolderBtn.addEventListener('click', createFolder);
+
     // main
     fetchList();
 
     // eventy rozmaite
     uploadBtn.addEventListener('click', () => {
-        if (!uploading && document.getElementById('fileInput').files[0] != undefined) {
+        if (!uploading && uploadForm.files[0]) {
             uploadFile();
         }
     });
