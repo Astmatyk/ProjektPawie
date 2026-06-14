@@ -15,6 +15,20 @@
 </header>
 <main>
     <h2 th:text="|Witaj, ${username}|">Panel główny</h2>
+
+    <div class="storage-container" style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+        <span class="white">
+            <strong id="storagePlanName">Plan: Ładowanie...</strong>
+            (<span id="storageText">0 MB / 0 MB</span>)
+        </span>
+            <strong id="storagePercent" style="color: #4caf50;">0%</strong>
+        </div>
+        <div style="width: 100%; background: #333; border-radius: 5px; height: 12px; overflow: hidden;">
+            <div id="storageBar" style="width: 0%; height: 100%; background: #4caf50; transition: width 0.4s ease, background-color 0.4s ease;"></div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="uploaderDialog">
             <h2>Wyślij plik</h2>
@@ -165,6 +179,7 @@
                 uploadBtn.innerHTML = 'Przesłano!';
                 uploadBtn.style.backgroundColor = 'green';
                 uploadBar.style.height = 0;
+                updateStorageUsage();
                 setTimeout(() => {
                     uploadBtn.innerHTML = 'Wyślij';
                     uploadBtn.style.backgroundColor = 'purple';
@@ -219,6 +234,7 @@
                 if (result.status === 'ok') {
                     button.closest('.listItem').remove();
                     fileList = fileList.filter(file => file.id !== fileId);
+                    updateStorageUsage();
                 } else {
                     console.log("Błąd usuwania " + result.message);
                     alert('Błąd: ' + result.message);
@@ -370,8 +386,53 @@
 
     if(createFolderBtn) createFolderBtn.addEventListener('click', createFolder);
 
+    // gotowiec do konwersji formatow
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    function updateStorageUsage() {
+        fetch('/api/usage')
+            .then(res => res.json())
+            .then(data => {
+                const used = data.usedBytes;
+                const max = data.maxBytes;
+
+                const percent = max > 0 ? (used / max) * 100 : 0;
+                const percentFormatted = percent.toFixed(1);
+
+                document.getElementById('storagePlanName').innerText = `Plan: ${data.planName}`;
+                document.getElementById('storageText').innerText = `${formatBytes(used)} / ${formatBytes(max)}`;
+                document.getElementById('storagePercent').innerText = `${percentFormatted}%`;
+
+                const storageBar = document.getElementById('storageBar');
+                const percentLabel = document.getElementById('storagePercent');
+
+                storageBar.style.width = `${percent}%`;
+
+                // zmiena koloru
+                if (percent > 90) {
+                    storageBar.style.backgroundColor = '#f44336'; // czerwony
+                    percentLabel.style.color = '#f44336';
+                } else if (percent > 75) {
+                    storageBar.style.backgroundColor = '#ff9800'; // żółty
+                    percentLabel.style.color = '#ff9800';
+                } else {
+                    storageBar.style.backgroundColor = '#4caf50'; // zielony
+                    percentLabel.style.color = '#4caf50';
+                }
+            })
+            .catch(err => console.error("Błąd pobierania statystyk dysku:", err));
+    }
+
     // main
     fetchList();
+    updateStorageUsage();
 
     // eventy rozmaite
     uploadBtn.addEventListener('click', () => {

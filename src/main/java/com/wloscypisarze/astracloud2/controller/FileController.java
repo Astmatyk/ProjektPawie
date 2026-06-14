@@ -305,4 +305,20 @@ public class FileController {
         }
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/usage")
+    public ResponseEntity<?> getStorageUsage(Principal principal) {
+        String username = principal.getName();
+        User user = userRepository.findByUsername(username).orElseThrow();
+
+        long usedBytes = user.getTotalUsageBytes() != null ? user.getTotalUsageBytes() : 0L;
+        long maxBytes = user.getLimitLevel().getMaxBytes();
+        String planName = user.getLimitLevel().getLevelName();
+
+        return ResponseEntity.ok(Map.of(
+                "usedBytes", usedBytes,
+                "maxBytes", maxBytes,
+                "planName", planName
+        ));
+    }
 }
