@@ -1,34 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>STRONA ADMINA</title>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Użytkownik</th>
-            <th>Email</th>
-            <th>Rola</th>
-            <th>Subskrypcja (Limit)</th>
-            <th>Pliki wgrane</th>
-            <th>Zużycie pamięci</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th-each="u : ${usersList}">
-            <td th-text="${u.id}">1</td>
-            <td th-text="${u.username}">user</td>
-            <td th-text="${u.email}">user@test.pl</td>
-            <td th-text="${u.role}">ROLE_USER</td>
-            <td><span class="badge bg-primary" th-text="${u.subscription}">FREE</span></td>
-            <td th-text="${u.fileCount}">0</td>
-            <td><span th-text="${u.storageUsage}">0.00</span> MB</td>
-        </tr>
-        </tbody>
-    </table>
 </head>
 <body>
-
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Użytkownik</th>
+        <th>Email</th>
+        <th>Rola</th>
+        <th>Subskrypcja (Limit)</th>
+        <th>Pliki wgrane</th>
+        <th>Zużycie pamięci</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="u : ${usersList}">
+        <td th:text="${u.id}">1</td>
+        <td th:text="${u.username}">user</td>
+        <td th:text="${u.email}">user@test.pl</td>
+        <td th:text="${u.role}">ROLE_USER</td>
+        <td><span class="badge bg-primary" th:text="${u.subscription}">FREE</span></td>
+        <td th:text="${u.fileCount}">0</td>
+        <td><span th:text="${u.storageUsage}">0.00</span> MB</td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>
