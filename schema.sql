@@ -58,7 +58,7 @@ CREATE TABLE files (
     CONSTRAINT fk_files_folder FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
 
     -- klucz unikalności dla braku duplikatów plików
-    CONSTRAINT uq_user_folder_file UNIQUE (user_id, folder_id, filename)
+    CONSTRAINT uq_user_folder_file UNIQUE NULLS NOT DISTINCT (user_id, folder_id, filename)
 );
 
 CREATE TABLE shared_links (
