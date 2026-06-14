@@ -191,7 +191,6 @@
         xhr.onload = function() {
             if (xhr.status == 200) {
                 fetchList();
-                buildList(sortList(fileList, 0));
                 uploadBtn.innerHTML = 'Przesłano!';
                 uploadBtn.style.backgroundColor = 'green';
                 uploadBar.style.height = 0;
@@ -249,7 +248,7 @@
             .then(result => {
                 if (result.status === 'ok') {
                     button.closest('.listItem').remove();
-                    fileList = fileList.filter(file => file.id !== fileId);
+                    fileList = fileList.filter(file => String(file.id) !== String(fileId));
                     updateStorageUsage();
                 } else {
                     console.log("Błąd usuwania " + result.message);
@@ -289,6 +288,19 @@
             });
     }
 
+    //jak się okazuje można łatwo przesłać plik o nazwie z tagami html
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g,
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag])
+        );
+    }
+
     // lista plikow, budowanie html
     function buildList(list) {
         const flDiv = document.querySelector('.filelist');
@@ -317,7 +329,7 @@
             <div class="listItem" data-id="${item.id}">
                 <div class="item">
                     <span style="cursor:pointer; display:flex; align-items:center;" onclick="enterFolder(${item.id})">
-                        ./ <strong style="margin-left: 5px;">${item.name}</strong>
+                        ./ <strong style="margin-left: 5px;">${escapeHTML(item.name)}</strong>
                     </span>
                     </div>
             </div>`;
@@ -327,8 +339,8 @@
             <div class="listItem" data-id="${item.id}">
                 <span class="chdate">Data modyfikacji: ${readable}</span>
                 <div class="item">
-                    <a href="/api/download/${item.id}" target="_blank">${item.name}</a>
-                    <button class="renameButton" data-id="${item.id}" data-name="${item.name}">${editIcon}</button>
+                    <a href="/api/download/${item.id}" target="_blank">${escapeHTML(item.name)}</a>
+                    <button class="renameButton" data-id="${item.id}" data-name="${escapeHTML(item.name)}">${editIcon}</button>
                     <button class="deleteButton" data-id="${item.id}">Usuń</button>
                 </div>
             </div>`;
