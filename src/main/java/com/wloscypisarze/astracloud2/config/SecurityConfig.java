@@ -22,6 +22,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // tymczasowo wyłączamy csrf
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/error", "/assets/**", "/index.html", "/login", "/register", "/api/register", "/theme/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated() // cała reszta wymaga bycia człowiekiem uwierzytelnionym
                 )
                 .formLogin(form -> form
