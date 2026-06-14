@@ -41,17 +41,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public org.springframework.security.provisioning.UserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password(passwordEncoder.encode("haslo123"))
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(admin);
-    }
-
-    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }

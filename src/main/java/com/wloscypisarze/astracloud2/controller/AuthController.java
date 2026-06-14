@@ -1,14 +1,14 @@
 package com.wloscypisarze.astracloud2.controller;
 
 import com.wloscypisarze.astracloud2.dto.RegisterRequest;
+import com.wloscypisarze.astracloud2.entity.LimitLevel;
+import com.wloscypisarze.astracloud2.entity.User;
+import com.wloscypisarze.astracloud2.repository.LimitLevelRepository;
+import com.wloscypisarze.astracloud2.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +19,13 @@ import java.util.Map;
 @RequestMapping("/api")
 public class AuthController {
 
-    private final UserDetailsManager userDetailsManager;
+    private final UserRepository userRepository;
+    private final LimitLevelRepository limitLevelRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthController(UserDetailsManager userDetailsManager, PasswordEncoder passwordEncoder) {
-        this.userDetailsManager = userDetailsManager;
+    public AuthController(UserRepository userRepository, LimitLevelRepository limitLevelRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.limitLevelRepository = limitLevelRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -42,18 +44,26 @@ public class AuthController {
         }
 
         //niedozwolone są duplikaty użytkowników
-        if (userDetailsManager.userExists(request.getUsername())) {
+        if (userRepository.existsByUsername(request.getUsername())) {
             return ResponseEntity.badRequest().body(Map.of("error", "Login już istnieje"));
         }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email jest już w użyciu"));
+        }
 
-        // tworzenie użytkownika
-        UserDetails newUser = User.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .roles("USER")
-                .build();
+        // Domyślnie FREE
+        LimitLevel freeLevel = limitLevelRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Błąd: Nie przypisano poziomu"));
 
-        userDetailsManager.createUser(newUser);
+        // tworzenie użytkownika - używamy naszej encji User zamiast spring security(!)
+        User newUser = new User();
+        newUser.setUsername(request.getUsername());
+        newUser.setEmail(request.getEmail());
+        newUser.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        newUser.setRole("ROLE_USER");
+        newUser.setLimitLevel(freeLevel);
+
+        userRepository.save(newUser);
 
         // Tworzenie katalogu
         new java.io.File("uploads/" + request.getUsername()).mkdirs();
