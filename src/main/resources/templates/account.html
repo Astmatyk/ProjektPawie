@@ -258,6 +258,30 @@
             });
     }
 
+    function deleteFolder(fileId, button) {
+        if (!confirm("Na pewno?")) return;
+        console.log("Usuwam ID " + fileId);
+
+        fetch('/api/folders/delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: fileId })
+        })
+            .then(res => res.json())
+            .then(result => {
+                if (result.status === 'ok') {
+                    button.closest('.listItem').remove();
+                    fileList = fileList.filter(file => String(file.id) !== String(fileId));
+                    updateStorageUsage();
+                } else {
+                    console.log("Błąd usuwania " + result.message);
+                    alert('Błąd: ' + result.message);
+                }
+            });
+    }
+
     // zmiana nazwy!
     function renameFile(fileId, oldName) {
         const newName = prompt("Wprowadź nową nazwę pliku:", oldName);
@@ -332,9 +356,9 @@
                     <span style="cursor:pointer; display:flex; align-items:center;" onclick="enterFolder(${item.id})">
                         ./ <strong style="margin-left: 5px;">${escapeHTML(item.name)}</strong>
                     </span>
-                            <button class="renameButton" data-id="${item.id}" data-name="${escapeHTML(item.name)}">${editIcon}</button>
-                            <button class="deleteButton" data-id="${item.id}">Usuń</button>
-                    </div>
+                    <button class="renameButton" data-id="${item.id}" data-name="${escapeHTML(item.name)}">${editIcon}</button>
+                    <button class="deleteFolderButton" data-id="${item.id}">Usuń</button>
+                </div>
             </div>`;
             } else {
                 const readable = item.date ? new Date(item.date * 1000).toLocaleString() : 'Brak daty';
@@ -356,6 +380,13 @@
             button.addEventListener('click', () => {
                 const id = button.dataset.id;
                 deleteFile(id, button);
+            });
+        });
+
+        document.querySelectorAll('.deleteFolderButton').forEach(button => {
+            button.addEventListener('click', () => {
+                const id = button.dataset.id;
+                deleteFolder(id, button);
             });
         });
 

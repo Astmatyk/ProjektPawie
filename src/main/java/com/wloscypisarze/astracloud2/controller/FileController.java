@@ -188,6 +188,31 @@ public class FileController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "error", "message", "Nie udało się usunąć pliku z dysku"));
     }
 
+    @PostMapping("/folders/delete")
+    public ResponseEntity<?> deleteFolder(@Valid @RequestBody DeleteRequest request, Principal principal) {
+        try {
+            String username = principal.getName();
+            User user = userRepository.findByUsername(username).orElse(null);
+
+            // query do bazy szukające po id i użytkowniku
+            Folder folder = folderRepository.findByIdAndUser(request.getId(), user).orElse(null);
+            if (folder == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("status", "error", "message", "Nie znaleziono folderu"));
+            }
+
+            // nasz wspaniały trigger w bazie usunie pliki samodzielnie
+            folderRepository.delete(folder);
+            return ResponseEntity.ok(Map.of("status", "ok", "message", "Folder został usunięty"));
+
+        } catch (Exception e) {
+            System.out.println("Folder się nie usunął");
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", "Nie udało się usunąć folderu"));
+        }
+    }
+
     @GetMapping("/search")
     public ResponseEntity<?> searchFiles(@RequestParam(value = "search", defaultValue = "") String query, Principal principal) {
         String username = principal.getName();
