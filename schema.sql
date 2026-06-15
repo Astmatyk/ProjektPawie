@@ -123,6 +123,8 @@ BEGIN
         number_of_files = number_of_files - 1
     WHERE id = OLD.user_id;
 
+    PERFORM pg_notify('file_deletion_channel', OLD.storage_path);
+
     RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
