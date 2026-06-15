@@ -72,16 +72,8 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Rejestracja zakończona pomyślnie"));
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        return ResponseEntity.ok(Map.of("login", principal.getName()));
-    }
-
     @PostMapping("/account/password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request, Principal principal) {
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest request, Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -89,15 +81,10 @@ public class AuthController {
         User user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new IllegalArgumentException("Użytkownik nie istnieje"));
 
-        // Walidacja
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
             return ResponseEntity.badRequest().body("Podane stare hasło jest nieprawidłowe");
         }
-        if (request.getNewPassword() == null || request.getNewPassword().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Nowe hasło nie może być puste");
-        }
 
-        // haszowanie i zapis
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
