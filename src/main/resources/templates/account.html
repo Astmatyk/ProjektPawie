@@ -332,6 +332,8 @@
                     <span style="cursor:pointer; display:flex; align-items:center;" onclick="enterFolder(${item.id})">
                         ./ <strong style="margin-left: 5px;">${escapeHTML(item.name)}</strong>
                     </span>
+                            <button class="renameButton" data-id="${item.id}" data-name="${escapeHTML(item.name)}">${editIcon}</button>
+                            <button class="deleteButton" data-id="${item.id}">Usuń</button>
                     </div>
             </div>`;
             } else {
