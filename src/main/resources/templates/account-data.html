@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pl"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstraCloud Spring</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body th:classappend="${session.theme != null ? session.theme : 'dark-theme'}">
+<header>
+    <div th:replace="~{fragments/header :: mainHead}"></div>
+    <div th:replace="~{fragments/header :: mainNav}"></div>
+</header>
+<main>
+    <div class="indexMain">
+        <h2>Witamy w <a href="https://youtu.be/X-vzlLD7b_0">AstraCloud 2.0</a>!</h2>
+        <h4>Zdecydowanie jednej z usług dysku w chmurze</h4>
+        <ul>
+            <li>Bezpieczeństwo</li>
+            <p>Podążamy za ideologią Keep It Stupid Simple - prosty kod to mniej punktów ataku</p>
+            <li>Szyfrowanie plików</li>
+            <p>może kiedyś</p>
+            <li>Konta użytkowników</li>
+            <p>możesz się logować i wylogowywać!</p>
+            <li>Nowoczesny design</li>
+            <p>Podążamy za najnowszymi trendami designu webowego</p>
+            <li>Powered by Java</li>
+            <p>Pancerny backend w potencjalnie najlepszym języku programowania dla maksimum bezpieczeństwa i wydajności</p>
+        </ul>
+    </div>
+</main>
+<footer>
+    <p th:replace="~{fragments/footer :: version}"></p>
+</footer>
+</body>
+</html>

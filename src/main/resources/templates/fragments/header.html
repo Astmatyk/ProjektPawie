@@ -21,6 +21,7 @@
     <p id="diskHeaderAction"><a href="/account">Dysk</a></p>
     <p sec:authorize="isAnonymous()" id="loginHeaderAction"><a href="/login">Logowanie</a></p>
     <p sec:authorize="isAnonymous()" id="registerHeaderAction"><a href="/register">Rejestracja</a></p>
+    <p sec:authorize="isAuthenticated()" id="accountDataAction"><a href="/account-data">Konto</a></p>
     <p sec:authorize="isAuthenticated()" id="logoutHeaderAction"><a href="/api/logout">Wyloguj</a></p>
 
     <div class="theme-div">

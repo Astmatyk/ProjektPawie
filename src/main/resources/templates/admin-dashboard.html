@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<html lang="pl"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>STRONA ADMINA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstraCloud Spring</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body>
+<body th:classappend="${session.theme != null ? session.theme : 'dark-theme'}">
+<header>
+    <div th:replace="~{fragments/header :: mainHead}"></div>
+    <div th:replace="~{fragments/header :: mainNav}"></div>
+</header>
 <table class="table table-striped">
     <thead>
     <tr>
@@ -26,6 +34,12 @@
         <td><span class="badge bg-primary" th:text="${u.subscription}">FREE</span></td>
         <td th:text="${u.fileCount}">0</td>
         <td><span th:text="${u.storageUsage}">0.00</span> MB</td>
+        <td>
+            <button>Edytuj konto</button>
+        </td>
+        <td>
+            <button>Usuń konto</button>
+        </td>
     </tr>
     </tbody>
 </table>
