@@ -348,6 +348,25 @@
             });
     }
 
+    function shareFile(fileId) {
+        fetch(`/api/share/${fileId}`, {
+            method: 'POST'
+        })
+            .then(res => res.json())
+            .then(result => {
+                if (result.status === 'ok') {
+                    const shareUrl = window.location.origin + '/api/share/' + result.token;
+                    prompt("Skopiuj link do udostępnienia:", shareUrl);
+                } else {
+                    alert('Błąd: ' + result.message);
+                }
+            })
+            .catch(err => {
+                console.error("Błąd udostępniania:", err);
+                alert("Wystąpił błąd podczas generowania linku.");
+            });
+    }
+
     //jak się okazuje można łatwo przesłać plik o nazwie z tagami html
     function escapeHTML(str) {
         return str.replace(/[&<>'"]/g,
@@ -406,6 +425,7 @@
                 <div class="item">
                     <a href="/api/download/${item.id}" target="_blank">${escapeHTML(item.name)}</a>
                     <button class="renameButton" data-id="${item.id}" data-name="${escapeHTML(item.name)}">${editIcon}</button>
+                    <button class="shareButton" data-id="${item.id}">Share</button>
                     <button class="deleteButton" data-id="${item.id}">Usuń</button>
                 </div>
             </div>`;
@@ -424,6 +444,13 @@
             button.addEventListener('click', () => {
                 const id = button.dataset.id;
                 deleteFolder(id, button);
+            });
+        });
+
+        document.querySelectorAll('.shareButton').forEach(button => {
+            button.addEventListener('click', () => {
+                const id = button.dataset.id;
+                shareFile(id);
             });
         });
 

@@ -5,8 +5,10 @@ import com.wloscypisarze.astracloud2.dto.RenameRequest;
 import com.wloscypisarze.astracloud2.entity.FileObject;
 import com.wloscypisarze.astracloud2.entity.Folder;
 import com.wloscypisarze.astracloud2.entity.User;
+import com.wloscypisarze.astracloud2.entity.SharedLink;
 import com.wloscypisarze.astracloud2.repository.FileObjectRepository;
 import com.wloscypisarze.astracloud2.repository.FolderRepository;
+import com.wloscypisarze.astracloud2.repository.SharedLinkRepository;
 import com.wloscypisarze.astracloud2.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
@@ -40,11 +42,13 @@ public class FileController {
     private final FileObjectRepository fileRepository;
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
+    private final SharedLinkRepository sharedLinkRepository;
 
-    public FileController(FileObjectRepository fileRepository, FolderRepository folderRepository, UserRepository userRepository) {
+    public FileController(FileObjectRepository fileRepository, FolderRepository folderRepository, UserRepository userRepository, SharedLinkRepository sharedLinkRepository) {
         this.fileRepository = fileRepository;
         this.folderRepository = folderRepository;
         this.userRepository = userRepository;
+        this.sharedLinkRepository = sharedLinkRepository;
     }
 
     @PostMapping("/upload")
@@ -407,5 +411,71 @@ public class FileController {
                 "maxBytes", maxBytes,
                 "planName", planName
         ));
+    }
+
+    @PostMapping("/share/{id}")
+    public ResponseEntity<?> shareFile(@PathVariable Long id, Principal principal) {
+        String username = principal.getName();
+        User user = userRepository.findByUsername(username).orElseThrow();
+
+        FileObject fileObj = fileRepository.findByIdAndUser(id, user).orElse(null);
+        if (fileObj == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("status", "error", "message", "Nie znaleziono pliku"));
+        }
+
+        // Sprawdzamy czy link już istnieje
+        SharedLink sharedLink = sharedLinkRepository.findByFile(fileObj).orElse(null);
+        if (sharedLink == null) {
+            sharedLink = new SharedLink();
+            sharedLink.setFile(fileObj);
+            sharedLink.setToken(UUID.randomUUID().toString());
+            sharedLinkRepository.save(sharedLink);
+        }
+
+        return ResponseEntity.ok(Map.of("status", "ok", "token", sharedLink.getToken()));
+    }
+
+    @GetMapping("/share/{token}")
+    public ResponseEntity<?> getSharedFile(@PathVariable String token) {
+        SharedLink sharedLink = sharedLinkRepository.findByToken(token).orElse(null);
+
+        if (sharedLink == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Link nie istnieje lub wygasł");
+        }
+
+        // Sprawdzanie wygaśnięcia linku
+        if (sharedLink.getExpiresAt() != null && sharedLink.getExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+            return ResponseEntity.status(HttpStatus.GONE).body("Link wygasł");
+        }
+
+        FileObject fileObj = sharedLink.getFile();
+        Path path = Paths.get(fileObj.getStoragePath());
+        Resource resource;
+        try {
+            resource = new UrlResource(path.toUri());
+        } catch (MalformedURLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        if (!resource.exists() || !resource.isReadable()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        // Zwiększamy licznik pobrań
+        sharedLink.setDownloadCount(sharedLink.getDownloadCount() + 1);
+        sharedLinkRepository.save(sharedLink);
+
+        String contentType;
+        try {
+            contentType = Files.probeContentType(path);
+        } catch (IOException e) {
+            contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+        if (contentType == null) contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileObj.getFilename() + "\"")
+                .body(resource);
     }
 }
