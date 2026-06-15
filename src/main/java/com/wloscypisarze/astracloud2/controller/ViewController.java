@@ -1,7 +1,9 @@
 package com.wloscypisarze.astracloud2.controller;
 
 import com.wloscypisarze.astracloud2.entity.SharedLink;
+import com.wloscypisarze.astracloud2.entity.User;
 import com.wloscypisarze.astracloud2.repository.SharedLinkRepository;
+import com.wloscypisarze.astracloud2.repository.UserRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +18,11 @@ import java.util.Optional;
 @Controller
 public class ViewController {
 
+    private final UserRepository userRepository;
     private final SharedLinkRepository sharedLinkRepository;
 
-    public ViewController(SharedLinkRepository sharedLinkRepository) {
+    public ViewController(SharedLinkRepository sharedLinkRepository, UserRepository userRepository) {
+        this.userRepository = userRepository;
         this.sharedLinkRepository = sharedLinkRepository;
     }
 
@@ -80,5 +84,19 @@ public class ViewController {
         }
 
         return "share";
+    }
+
+    @GetMapping("/manageAccount")
+    public String accountData(Principal principal, Model model){
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        User user = userRepository.findByUsername(principal.getName())
+                .orElseThrow();
+
+        model.addAttribute("loggedUser", user);
+
+        return "manageAccount";
     }
 }

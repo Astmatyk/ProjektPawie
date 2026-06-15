@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstraCloud Spring</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body th:classappend="${session.theme ?: 'dark-theme'}">
+<header>
+    <div th:replace="~{fragments/header :: mainHead}"></div>
+    <div th:replace="~{fragments/header :: mainNav}"></div>
+</header>
+<main>
+    <div>
+        <h2>Dane konta</h2>
+        <div>
+            <div>
+                <span>Nazwa użytkownika:</span>
+                <span th:text="${loggedUser.username}">User</span>
+            </div>
+
+            <hr>
+
+            <div id="email-view">
+                <span>Adres e-mail:</span>
+                <span th:text="${loggedUser.email}">user@email.com</span>
+                <button onclick="toggleSection('email')">Zmień</button>
+            </div>
+
+            <div id="email-edit" class="myForm hidden">
+                <form id="emailForm">
+                    <legend>Zmiana e-mail</legend><br>
+                    <input type="email" name="newEmail" id="newEmail" placeholder="nowy email..." required /><br>
+                    <button type="submit">Zmień email</button><br>
+                    <button type="button" onclick="toggleSection('email')">Anuluj</button>
+                </form>
+            </div>
+
+            <hr>
+
+            <div id="password-view">
+                <span>Hasło:</span>
+                <span>••••••••</span>
+                <button onclick="toggleSection('password')">Zmień</button>
+            </div>
+
+            <div id="password-edit" class="myForm hidden">
+                <form id="passwordForm">
+                    <legend>Zmiana hasła</legend><br>
+                    <input type="password" name="oldPassword" id="oldPassword" placeholder="stare hasło..." required /><br>
+                    <input type="password" name="newPassword" id="newPassword" required placeholder="nowe hasło..." minlength="8" /><br>
+                    <button type="submit">Zmień hasło</button><br>
+                    <button type="button" onclick="toggleSection('password')">Anuluj</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/assets/js/manageAccount.js"></script>
+</main>
+<footer>
+    <p th:replace="~{fragments/footer :: version}"></p>
+</footer>
+</body>
+</html>

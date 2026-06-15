@@ -1,5 +1,6 @@
 package com.wloscypisarze.astracloud2.controller;
 
+import com.wloscypisarze.astracloud2.dto.ChangeEmailRequest;
 import com.wloscypisarze.astracloud2.dto.ChangePasswordRequest;
 import com.wloscypisarze.astracloud2.dto.RegisterRequest;
 import com.wloscypisarze.astracloud2.entity.LimitLevel;
@@ -70,6 +71,22 @@ public class AuthController {
         new java.io.File("uploads/" + request.getUsername()).mkdirs();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Rejestracja zakończona pomyślnie"));
+    }
+
+    @PostMapping("/account/email")
+    public ResponseEntity<?> updateEmail(@Valid @RequestBody ChangeEmailRequest request, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User user = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Użytkownik nie istnieje"));
+
+        // Aktualizacja i zapis w bazie
+        user.setEmail(request.getNewEmail());
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "Email został zmieniony"));
     }
 
     @PostMapping("/account/password")
