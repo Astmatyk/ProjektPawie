@@ -96,14 +96,39 @@ public class FileController {
 
                 return ResponseEntity.ok(Map.of("status", "success", "fileId", fileObj.getId(), "filename", originalFilename));
             } catch (DataIntegrityViolationException e) {
-                // Jeśli baza odrzuci (np. brak miejsca wg triggera 45000 lub zduplikowana nazwa), usuwamy plik fizyczny
+                // naruszenie UNIQUE (duplikat pliku w danym folderze)
                 try {
                     Files.deleteIfExists(filepath);
                 } catch (IOException ignored) {}
 
-                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(Map.of("status", "error", "message", "Brak miejsca na koncie lub duplikat pliku."));
-            } catch (IOException e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                        "status", "error",
+                        "message", "Plik o takiej nazwie już istnieje w tym folderze."
+                ));
+            } catch (Exception e) {
+                // łapiemy pozostałe błędy
+                try {
+                    Files.deleteIfExists(filepath);
+                } catch (IOException ignored) {}
+
+                // Sprawdzamy, czy znajduje się wiadomość z triggera
+                Throwable rootCause = e;
+                while (rootCause.getCause() != null && rootCause != rootCause.getCause()) {
+                    rootCause = rootCause.getCause();
+                }
+
+                // weryfikujemy nasz kod błędu 45000
+                if (rootCause.getMessage() != null && rootCause.getMessage().contains("User storage limit exceeded")) {
+                    return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(Map.of(
+                            "status", "error",
+                            "message", "Brak miejsca na koncie."
+                    ));
+                }
+
+                // inny, nieprzewidziany błąd
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                        "error", "Wystąpił nieoczekiwany błąd serwera."
+                ));
             }
         }
         return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "No file uploaded"));

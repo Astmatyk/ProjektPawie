@@ -203,6 +203,7 @@
                     uploading = 0;
                 }, 1000)
             } else {
+                if(xhr.status == 413) alert("Brak miejsca na koncie!\nWykup lepszy pakiet już dziś");
                 uploadBtn.innerHTML = 'Błąd!';
                 uploadBtn.style.backgroundColor = 'red';
                 uploadBtn.style.width = '76px';
