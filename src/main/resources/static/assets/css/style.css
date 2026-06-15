@@ -368,7 +368,7 @@ li::marker {
     background-color: var(--bg-surface-hover);
 }
 
-.deleteButton {
+.deleteButton, .deleteFolderButton {
     border-radius: 10px;
     color: white;
     background-color: var(--danger);
@@ -379,7 +379,7 @@ li::marker {
     transition: background-color 0.3s ease;
 }
 
-.deleteButton:hover {
+.deleteButton:hover, .deleteFolderButton:hover {
     background-color: var(--danger-hover);
 }
 
@@ -537,7 +537,7 @@ form > legend {
     padding: 7px;
 }
 
-.renameButton {
+.renameButton, .renameFolderButton {
     color: var(--text-inverted);
     background: transparent;
     border: none;
@@ -546,7 +546,19 @@ form > legend {
     transition: color 0.3s ease, transform 0.2s ease;
 }
 
-.renameButton:hover {
+.renameButton:hover, .renameFolderButton:hover {
+    color: var(--accent);
+    cursor: pointer;
+}
+
+#createFolderBtn {
+    color: var(--text-inverted);
+    background: transparent;
+    border: none;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+#createFolderBtn:hover {
     color: var(--accent);
     cursor: pointer;
 }

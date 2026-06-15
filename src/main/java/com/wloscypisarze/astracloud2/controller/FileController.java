@@ -269,7 +269,44 @@ public class FileController {
         }
     }
 
-    // Endpoint do pobierania plików
+    @PostMapping("/folders/rename")
+    public ResponseEntity<?> renameFolder(@Valid @RequestBody RenameRequest request, Principal principal) {
+        String username = principal.getName();
+        User user = userRepository.findByUsername(username).orElseThrow();
+
+        // Walidacja
+        String newName = StringUtils.cleanPath(request.getNewName());
+        if (newName.contains("/") || newName.contains("..") || !StringUtils.hasText(newName)) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Niedozwolone znaki w nazwie folderu"));
+        }
+
+        // Pobieramy katalog po id i użytkowniku
+        Long fileId = Long.valueOf(request.getId());
+        Folder folder = folderRepository.findByIdAndUser(fileId, user).orElse(null);
+        if (folder == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("status", "error", "message", "Nie znaleziono folder"));
+        }
+
+        // Sprawdzamy czy w katalogu wyżej nie ma już katalogu o nowej nazwie
+        boolean duplicateExists = folder.getParent() != null
+                ? folderRepository.existsByUserAndParentIdAndFoldername(user, folder.getParent().getId(), newName)
+                : folderRepository.existsByUserAndParentIsNullAndFoldername(user, newName);
+
+        if (duplicateExists) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Folder o takiej nazwie już tu istnieje"));
+        }
+
+        // zmieniamy jedynie foldername w BD
+        try {
+            folder.setFoldername(newName);
+            folderRepository.save(folder);
+            return ResponseEntity.ok(Map.of("status", "ok", "message", "Nazwa folderu została zmieniona"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "error", "message", "Błąd zapisu bazy danych"));
+        }
+    }
+
+    // Endpoint pobierania plików
     @GetMapping("/download/{id}")
     public ResponseEntity<?> downloadFile(@PathVariable Long id, Principal principal) {
         String username = principal.getName();
