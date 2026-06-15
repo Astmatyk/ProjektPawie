@@ -433,6 +433,7 @@ public class FileController {
             sharedLink.setExpiresAt(java.time.LocalDateTime.now().plusHours(2));
             sharedLinkRepository.save(sharedLink);
         } else {
+            sharedLink.setFilename(fileObj.getFilename());
             sharedLink.setExpiresAt(java.time.LocalDateTime.now().plusHours(2));
             sharedLinkRepository.save(sharedLink);
         }
