@@ -385,7 +385,7 @@ function buildList(list) {
         html += `
                     <div class="listItem" style="cursor: pointer; background: rgba(255,255,255,0.05);" onclick="goUp()">
                         <div class="item">
-                            <strong>[..] Wróć (w górę)</strong>
+                            <strong>[..] W górę</strong>
                         </div>
                     </div>`;
     }
