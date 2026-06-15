@@ -16,6 +16,24 @@ function toggleSection(section) {
     }
 }
 
+function deleteOwnAccount() {
+
+    if (confirm("CZY NA PEWNO CHCESZ USUNĄĆ SWOJE KONTO?\nTa operacja jest nieodwracalna, a wszystkie Twoje pliki w chmurze zostaną skasowane.")) {
+
+        fetch("/api/account/delete", {
+            method: "POST"
+        })
+            .then(res => {
+                if (res.ok) {
+                    alert("Twoje konto zostało usunięte. Nastąpi wylogowanie.");
+                    window.location.href = "/";
+                } else {
+                    alert("Wystąpił błąd podczas usuwania konta.");
+                }
+            });
+    }
+}
+
 emailForm.addEventListener("submit", (event) => {
     event.preventDefault();
 

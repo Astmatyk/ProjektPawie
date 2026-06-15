@@ -7,6 +7,7 @@ import com.wloscypisarze.astracloud2.entity.LimitLevel;
 import com.wloscypisarze.astracloud2.entity.User;
 import com.wloscypisarze.astracloud2.repository.LimitLevelRepository;
 import com.wloscypisarze.astracloud2.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -106,5 +107,31 @@ public class AuthController {
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of("message", "Hasło zostało zmienione"));
+    }
+
+    @PostMapping("/account/delete")
+    @ResponseBody
+    public ResponseEntity<?> deleteOwnAccount(Principal principal, HttpServletRequest request) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        User user = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Użytkownik nie istnieje"));
+
+        // Usunięcie z bazy danych
+        userRepository.delete(user);
+
+        //todo: dodac jakies handlery problemow
+
+        // Wylogowanie i unieważnienie sesji
+        try {
+            request.logout();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Błąd podczas wylogowywania");
+        }
+
+        return ResponseEntity.ok().build();
+
     }
 }
