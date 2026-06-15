@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pl"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AstraCloud Spring</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body th:classappend="${session.theme != null ? session.theme : 'dark-theme'}">
+<header>
+  <div th:replace="~{fragments/header :: mainHead}"></div>
+  <div th:replace="~{fragments/header :: mainNav}"></div>
+</header>
+<main>
+  <div class="indexMain">
+    <h2>Gratulacje, udostępniono Ci plik.</h2>
+    <div th:if="${filename}">
+      <h4>Dobre wieści: możesz go pobrać za darmo!</h4>
+      <h4>Wystarczy kliknąć w ten <i>Całkowicie niepodejrzany link:</i></h4>
+      <p>[[<a th:href="@{|http://localhost:8080/api/share/${token}|}" th:text="${#strings.toUpperCase(filename)}">niepodejrzany link</a>]]</p>
+      <h4>Uwaga! Link wygaśnie: <span th:text="${expiresAt}">nie wiem kiedy xd</span></h4>
+    </div>
+    <div th:if="${errorMessage}">
+      <h2>Tragiczne nowinki: link wygasł.</h2>
+      <p th:text="${errorMessage}"></p>
+    </div>
+  </div>
+</main>
+<footer>
+  <p th:replace="~{fragments/footer :: version}"></p>
+</footer>
+</body>
+</html>

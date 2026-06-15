@@ -429,6 +429,11 @@ public class FileController {
             sharedLink = new SharedLink();
             sharedLink.setFile(fileObj);
             sharedLink.setToken(UUID.randomUUID().toString());
+            sharedLink.setFilename(fileObj.getFilename());
+            sharedLink.setExpiresAt(java.time.LocalDateTime.now().plusHours(2));
+            sharedLinkRepository.save(sharedLink);
+        } else {
+            sharedLink.setExpiresAt(java.time.LocalDateTime.now().plusHours(2));
             sharedLinkRepository.save(sharedLink);
         }
 

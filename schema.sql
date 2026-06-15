@@ -65,6 +65,7 @@ CREATE TABLE shared_links (
     id BIGSERIAL PRIMARY KEY,
     file_id BIGINT NOT NULL,
     token VARCHAR(64) NOT NULL UNIQUE, -- bezpieczny unikalny token w URL
+    filename VARCHAR(255) NOT NULL,
     expires_at TIMESTAMP, -- jeśli NULL, to link jest bezterminowy
     download_count INT DEFAULT 0 NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,

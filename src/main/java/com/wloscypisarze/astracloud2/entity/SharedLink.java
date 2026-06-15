@@ -24,6 +24,9 @@ public class SharedLink {
     @Column(nullable = false, unique = true, length = 64)
     private String token;
 
+    @Column(nullable = false, length = 255)
+    private String filename;
+
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
