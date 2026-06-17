@@ -1,12 +1,16 @@
 package com.wloscypisarze.astracloud2.controller;
 
+import com.wloscypisarze.astracloud2.dto.AdminUserEditRequest;
+import com.wloscypisarze.astracloud2.entity.LimitLevel;
 import com.wloscypisarze.astracloud2.entity.User;
+import com.wloscypisarze.astracloud2.repository.LimitLevelRepository;
 import com.wloscypisarze.astracloud2.repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.ZoneOffset;
@@ -20,9 +24,13 @@ import java.util.Map;
 public class AdminController {
 
     private final UserRepository userRepository;
+    private final LimitLevelRepository limitLevelRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AdminController(UserRepository userRepository) {
+    public AdminController(UserRepository userRepository, LimitLevelRepository limitLevelRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.limitLevelRepository = limitLevelRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -59,4 +67,43 @@ public class AdminController {
         model.addAttribute("usersList", userRows);
         return "admin-dashboard"; // nazwa pliku HTML w templates
     }
+
+    //SAMUEL START
+    // --- API: EDYCJA UŻYTKOWNIKA PRZEZ ADMINA ---
+    @PostMapping("/api/users/{id}")
+    @ResponseBody
+    public ResponseEntity<?> editUserByAdmin(@PathVariable("id") Long id, @RequestBody AdminUserEditRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Użytkownik nie istnieje"));
+
+        // 1. Zmiana adresu e-mail
+        user.setEmail(request.getEmail());
+
+        // 2. Zmiana pakietu (Subskrypcji)
+        LimitLevel newLevel = limitLevelRepository.findByLevelName(request.getSubscription())
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono poziomu limitu: " + request.getSubscription()));
+        user.setLimitLevel(newLevel);
+
+        // 3. Opcjonalna zmiana hasła (tylko jeśli admin coś wpisał)
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        }
+
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }
+
+    // --- API: USUWANIE UŻYTKOWNIKA PRZEZ ADMINA ---
+    @DeleteMapping("/api/users/{id}")
+    @ResponseBody
+    public ResponseEntity<?> deleteUserByAdmin(@PathVariable("id") Long id) {
+        if (!userRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        userRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    //SAMUEL END
 }

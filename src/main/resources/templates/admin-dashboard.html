@@ -13,35 +13,148 @@
     <div th:replace="~{fragments/header :: mainHead}"></div>
     <div th:replace="~{fragments/header :: mainNav}"></div>
 </header>
-<table class="table table-striped">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Użytkownik</th>
-        <th>Email</th>
-        <th>Rola</th>
-        <th>Subskrypcja (Limit)</th>
-        <th>Pliki wgrane</th>
-        <th>Zużycie pamięci</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="u : ${usersList}">
-        <td th:text="${u.id}">1</td>
-        <td th:text="${u.username}">user</td>
-        <td th:text="${u.email}">user@test.pl</td>
-        <td th:text="${u.role}">ROLE_USER</td>
-        <td><span class="badge bg-primary" th:text="${u.subscription}">FREE</span></td>
-        <td th:text="${u.fileCount}">0</td>
-        <td><span th:text="${u.storageUsage}">0.00</span> MB</td>
-        <td>
-            <button>Edytuj konto</button>
-        </td>
-        <td>
-            <button>Usuń konto</button>
-        </td>
-    </tr>
-    </tbody>
-</table>
+<main>
+    <h2>Panel administratora</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Użytkownik</th>
+            <th>Email</th>
+            <th>Rola</th>
+            <th>Subskrypcja (Limit)</th>
+            <th>Pliki wgrane</th>
+            <th>Zużycie pamięci</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="u : ${usersList}">
+            <td th:text="${u.id}">1</td>
+            <td th:text="${u.username}">user</td>
+            <td th:text="${u.email}">user@test.pl</td>
+            <td th:text="${u.role}">ROLE_USER</td>
+            <td><span class="badge bg-primary" th:text="${u.subscription}">FREE</span></td>
+            <td th:text="${u.fileCount}">0</td>
+            <td><span th:text="${u.storageUsage}">0.00</span> MB</td>
+            <td>
+                <button type="button" class="btn-edit" th:data-id="${u.id}" th:data-username="${u.username}" th:data-email="${u.email}" th:data-subscription="${u.subscription}" onclick="openEditModal(this)">
+                    Edytuj
+                </button>
+            </td>
+            <td>
+                <button type="button" class="btn-delete" th:onclick="'deleteUser(' + ${u.id} + ')'">Usuń konto</button>
+            </td>
+            <div id="editModal" class="modal-overlay" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Edycja użytkownika: <span id="modal-username-title"></span></h3>
+                        <span class="close-modal" onclick="closeModal()">&times;</span>
+                    </div>
+
+                    <form id="admin-edit-form" onsubmit="submitAdminEdit(event)">
+                        <input type="hidden" id="modal-user-id">
+
+                        <div class="form-group">
+                            <label for="modal-email">Adres E-mail</label>
+                            <input type="email" id="modal-email" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modal-subscription">Pakiet subskrypcji</label>
+                            <select id="modal-subscription" class="form-input">
+                                <option value="FREE">FREE</option>
+                                <option value="PREMIUM">PREMIUM</option>
+                                <option value="ENTERPRISE">ENTERPRISE</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modal-password">Nowe hasło (Zostaw puste, jeśli bez zmian)</label>
+                            <input type="password" id="modal-password" class="form-input" placeholder="Wpisz nowe hasło użytkownika...">
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-cancel" onclick="closeModal()">Anuluj</button>
+                            <button type="submit" class="btn-save">Zapisz zmiany</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </tr>
+        </tbody>
+    </table>
+</main>
+<script>
+    function openEditModal(button) {
+        // Pobieramy dane z klikniętego wiersza
+        const id = button.getAttribute('data-id');
+        const username = button.getAttribute('data-username');
+        const email = button.getAttribute('data-email');
+        const subscription = button.getAttribute('data-subscription');
+
+        // Wstrzykujemy dane do modala
+        document.getElementById('modal-user-id').value = id;
+        document.getElementById('modal-username-title').innerText = username;
+        document.getElementById('modal-email').value = email;
+        document.getElementById('modal-subscription').value = subscription;
+        document.getElementById('modal-password').value = ''; // czyścimy pole hasła
+
+        // Pokazujemy modal
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    function submitAdminEdit(event) {
+        event.preventDefault();
+
+        const userId = document.getElementById('modal-user-id').value;
+        const email = document.getElementById('modal-email').value;
+        const subscription = document.getElementById('modal-subscription').value;
+        const password = document.getElementById('modal-password').value;
+
+        fetch("/admin/api/users/" + userId, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: email,
+                subscription: subscription,
+                password: password // jeśli puste, backend to zignoruje
+            })
+        })
+            .then(async res => {
+                if (res.ok) {
+                    alert("Dane użytkownika zostały zaktualizowane!");
+                    location.reload();
+                } else {
+                    const msg = await res.text();
+                    alert("Błąd: " + msg);
+                }
+            });
+    }
+
+    function deleteUser(userId) {
+        if (confirm("Czy na pewno chcesz bezpowrotnie usunąć tego użytkownika i wszystkie jego pliki?")) {
+            fetch("/admin/api/users/" + userId, {
+                method: "DELETE"
+            })
+                .then(res => {
+                    if (res.ok) {
+                        // zajebisty ten kod taki że nie działa
+                        // document.getElementById('user-row-' + userId).remove();
+                        alert("Użytkownik został usunięty.");
+                        location.reload();
+                    } else {
+                        alert("Nie udało się usunąć użytkownika.");
+                    }
+                });
+        }
+    }
+
+</script>
 </body>
 </html>
