@@ -25,7 +25,7 @@ CREATE TABLE users (
     -- liczniki
     number_of_files INT DEFAULT 0 NOT NULL,
     total_usage_bytes BIGINT DEFAULT 0 NOT NULL, -- łączna waga wszystkich plików użytkownika
-    -- Relacja do pakietu limitów. Domyślnie każdy dostaje pakiet o ID = 1 (czyli 'FREE')
+    -- domyślnie pakiet FREE
     limit_level_id BIGINT DEFAULT 1 NOT NULL,
     CONSTRAINT fk_users_limit_level FOREIGN KEY (limit_level_id) REFERENCES limit_levels(id)
 );
@@ -34,7 +34,7 @@ CREATE TABLE folders (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     foldername VARCHAR(30) NOT NULL,
-    parent_id BIGINT, -- NULL oznacza główny katalog użytkownika (root)
+    parent_id BIGINT, -- NULL oznacza główny katalog użytkownika
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
     -- relacje z kaskadowym usuwaniem
@@ -42,7 +42,7 @@ CREATE TABLE folders (
     CONSTRAINT fk_folders_parent FOREIGN KEY (parent_id) REFERENCES folders(id) ON DELETE CASCADE,
 
     -- w jednym folderze nie może być dwóch tak samo nazwanych podfolderów
-    CONSTRAINT uq_user_folder_parent UNIQUE (user_id, parent_id, foldername)
+    CONSTRAINT uq_user_folder_parent UNIQUE NULLS NOT DISTINCT (user_id, parent_id, foldername)
 );
 
 CREATE TABLE files (
@@ -64,9 +64,9 @@ CREATE TABLE files (
 CREATE TABLE shared_links (
     id BIGSERIAL PRIMARY KEY,
     file_id BIGINT NOT NULL,
-    token VARCHAR(64) NOT NULL UNIQUE, -- bezpieczny unikalny token w URL
+    token VARCHAR(64) NOT NULL UNIQUE,
     filename VARCHAR(255) NOT NULL,
-    expires_at TIMESTAMP, -- jeśli NULL, to link jest bezterminowy
+    expires_at TIMESTAMP,
     download_count INT DEFAULT 0 NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
@@ -76,7 +76,7 @@ CREATE TABLE shared_links (
 INSERT INTO limit_levels (level_name, max_bytes) VALUES
 ('FREE', 524288000),       -- 500 MB na start dla każdego
 ('PREMIUM', 2147483648),   -- 2 GB dla wspierających
-('ADMIN', 1099511627776);  -- 1 TB dla administratorów
+('ENTERPRISE', 1099511627776);  -- 1 TB dla zawodowców
 
 
 CREATE OR REPLACE FUNCTION verify_and_update_storage()
@@ -105,7 +105,11 @@ BEGIN
         number_of_files = number_of_files + 1
     WHERE id = NEW.user_id;
 
-    RETURN NEW;
+--trigger logujący
+    INSERT INTO files_history (user_id, file_id, action_type, old_value, new_value)
+    VALUES (NEW.user_id, NEW.id, 'INSERT', NULL, NEW.filename);
+
+RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -119,14 +123,20 @@ EXECUTE FUNCTION verify_and_update_storage();
 CREATE OR REPLACE FUNCTION reduce_user_storage_on_delete()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE users
-    SET total_usage_bytes = total_usage_bytes - OLD.size,
-        number_of_files = number_of_files - 1
-    WHERE id = OLD.user_id;
+    -- atualizacja statystyk użytkownika
+UPDATE users
+SET total_usage_bytes = total_usage_bytes - OLD.size,
+    number_of_files = number_of_files - 1
+WHERE id = OLD.user_id;
 
-    PERFORM pg_notify('file_deletion_channel', OLD.storage_path);
+-- logowanie usuniecia
+INSERT INTO files_history (user_id, file_id, action_type, old_value, new_value)
+VALUES (OLD.user_id, OLD.id, 'DELETE', OLD.filename, NULL);
 
-    RETURN OLD;
+-- powiadomienie apki
+PERFORM pg_notify('file_deletion_channel', OLD.storage_path);
+
+RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -135,3 +145,31 @@ CREATE TRIGGER trigger_file_delete_cleanup
 AFTER DELETE ON files
 FOR EACH ROW
 EXECUTE FUNCTION reduce_user_storage_on_delete();
+
+--logowanie
+CREATE OR REPLACE FUNCTION log_file_insert_and_update()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    IF (TG_OP = 'INSERT') THEN
+        INSERT INTO files_history (user_id, file_id, action_type, old_value, new_value)
+        VALUES (NEW.user_id, NEW.id, 'INSERT', NULL, NEW.filename);
+RETURN NEW;
+
+ELSIF (TG_OP = 'UPDATE') THEN
+        -- rejestrujemy tylko realną zmianę nazwy pliku
+        IF (OLD.filename IS DISTINCT FROM NEW.filename) THEN
+            INSERT INTO files_history (user_id, file_id, action_type, old_value, new_value)
+            VALUES (NEW.user_id, NEW.id, 'UPDATE', OLD.filename, NEW.filename);
+END IF;
+RETURN NEW;
+END IF;
+RETURN NULL;
+END;
+$function$
+
+CREATE TRIGGER trigger_file_insert_update_audit
+AFTER INSERT OR UPDATE ON files
+FOR EACH ROW
+EXECUTE FUNCTION log_file_insert_and_update();
