@@ -2,12 +2,15 @@ DROP TRIGGER IF EXISTS trigger_file_upload_guard ON files;
 DROP FUNCTION IF EXISTS verify_and_update_storage();
 DROP TRIGGER IF EXISTS trigger_file_delete_cleanup ON files;
 DROP FUNCTION IF EXISTS reduce_user_storage_on_delete();
+DROP TRIGGER IF EXISTS trigger_file_update_audit ON files;
+DROP FUNCTION IF EXISTS log_file_update();
 
 DROP TABLE IF EXISTS shared_links;
 DROP TABLE IF EXISTS files;
 DROP TABLE IF EXISTS folders;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS limit_levels;
+DROP TABLE IF EXISTS files_history;
 
 CREATE TABLE limit_levels (
     id BIGSERIAL PRIMARY KEY,
@@ -73,6 +76,16 @@ CREATE TABLE shared_links (
     CONSTRAINT fk_shared_links_file FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
 );
 
+CREATE TABLE files_history (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT,
+    file_id BIGINT,
+    action_type VARCHAR(10),
+    old_value VARCHAR(255),
+    new_value VARCHAR(255),
+    done_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
 INSERT INTO limit_levels (level_name, max_bytes) VALUES
 ('FREE', 524288000),       -- 500 MB na start dla każdego
 ('PREMIUM', 2147483648),   -- 2 GB dla wspierających
@@ -105,7 +118,7 @@ BEGIN
         number_of_files = number_of_files + 1
     WHERE id = NEW.user_id;
 
---trigger logujący
+-- czesc logująca
     INSERT INTO files_history (user_id, file_id, action_type, old_value, new_value)
     VALUES (NEW.user_id, NEW.id, 'INSERT', NULL, NEW.filename);
 
@@ -146,30 +159,20 @@ AFTER DELETE ON files
 FOR EACH ROW
 EXECUTE FUNCTION reduce_user_storage_on_delete();
 
---logowanie
-CREATE OR REPLACE FUNCTION log_file_insert_and_update()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
+--logowanie zmiany nazwy
+CREATE OR REPLACE FUNCTION log_file_update()
+ RETURNS TRIGGER AS $$
 BEGIN
-    IF (TG_OP = 'INSERT') THEN
+    -- rejestrujemy tylko realną zmianę nazwy pliku
+    IF (OLD.filename IS DISTINCT FROM NEW.filename) THEN
         INSERT INTO files_history (user_id, file_id, action_type, old_value, new_value)
-        VALUES (NEW.user_id, NEW.id, 'INSERT', NULL, NEW.filename);
-RETURN NEW;
-
-ELSIF (TG_OP = 'UPDATE') THEN
-        -- rejestrujemy tylko realną zmianę nazwy pliku
-        IF (OLD.filename IS DISTINCT FROM NEW.filename) THEN
-            INSERT INTO files_history (user_id, file_id, action_type, old_value, new_value)
-            VALUES (NEW.user_id, NEW.id, 'UPDATE', OLD.filename, NEW.filename);
-END IF;
-RETURN NEW;
-END IF;
-RETURN NULL;
+        VALUES (NEW.user_id, NEW.id, 'UPDATE', OLD.filename, NEW.filename);
+    END IF;
+    RETURN NEW;
 END;
-$function$
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_file_insert_update_audit
-AFTER INSERT OR UPDATE ON files
+CREATE TRIGGER trigger_file_update_audit
+AFTER UPDATE ON files
 FOR EACH ROW
-EXECUTE FUNCTION log_file_insert_and_update();
+EXECUTE FUNCTION log_file_update();
