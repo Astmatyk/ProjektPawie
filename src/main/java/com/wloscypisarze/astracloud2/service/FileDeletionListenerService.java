@@ -38,7 +38,7 @@ public class FileDeletionListenerService {
                 // unwrappujemy połączenie do natywnego sterownika PostgreSQL, żeby mieć dostęp do powiadomień
                 PGConnection pgConn = connection.unwrap(PGConnection.class);
 
-                System.out.println("[Listener] Uruchomiono asynchroniczny nasłuch bazy danych");
+                System.out.println("[FileDeletionListenerService] Uruchomiono listener");
 
                 while (running) {
                     // sprawdzamy powiadomienia.
@@ -50,28 +50,28 @@ public class FileDeletionListenerService {
                         for (PGNotification notification : notifications) {
                             // Tu ląduje tekst, który w triggerze przekazałeś jako OLD.path
                             String filePath = notification.getParameter();
-                            System.out.println("[Sygnał z bazy] Wykryto usunięcie! Sprzątam dysk dla: " + filePath);
+                            System.out.println("[FileDeletionListenerService] Sprzątam: " + filePath);
 
                             try {
                                 File fileOnDisk = new File(filePath);
                                 if (fileOnDisk.exists()) {
                                     if (fileOnDisk.delete()) {
-                                        System.out.println("️Plik fizyczny został usunięty z dysku.");
+                                        System.out.println("️[FileDeletionListenerService] Plik został usunięty z dysku.");
                                     } else {
-                                        System.out.println("Istnieje plik, ale Java nie mogła go skasować.");
+                                        System.out.println("[FileDeletionListenerService] Istnieje plik, ale nie udało się go skasować.");
                                     }
                                 } else {
-                                    System.out.println("Pliku nie ma już na dysku.");
+                                    System.out.println("[FileDeletionListenerService] Pliku nie ma już na dysku.");
                                 }
                             } catch (Exception e) {
-                                System.err.println("Błąd podczas usuwania pliku z dysku: " + e.getMessage());
+                                System.err.println("[FileDeletionListenerService] Błąd podczas usuwania pliku z dysku: " + e.getMessage());
                             }
                         }
                     }
                 }
             } catch (Exception e) {
                 // zabezpieczenie na wypadek zerwania połączenia z bazą (np. restart bazy danych)
-                System.err.println("Wątek nasłuchujący bazy został przerwany: " + e.getMessage());
+                System.err.println("[FileDeletionListenerService] Listener został przerwany: " + e.getMessage());
             }
         });
 
