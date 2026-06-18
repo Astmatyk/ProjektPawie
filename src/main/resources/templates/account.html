@@ -18,7 +18,7 @@
         <h2 th:text="|Witaj, ${username}|" style="margin: 0;">Panel główny</h2>
 
         <div class="admin-actions" sec:authorize="hasRole('ADMIN')">
-            <a href="/admin/dashboard" class="btn-admin" style="
+            <a th:href="@{/admin/dashboard}" class="btn-admin" style="
                 background-color: #d97706;
                 color: white;
                 text-decoration: none;
