@@ -59,6 +59,8 @@
     /* odnośniki (lista plików) */
     --filelink: white;
     --filelink-visited: gray;
+
+    --folderBtn: white;
 }
 
 body.high-contrast {
@@ -106,6 +108,8 @@ body.high-contrast {
 
     --filelink: #ffff00;
     --filelink-visited: #cccccc;
+
+    --folderBtn: white;
 }
 
 /* ===== MOTYW JASNY ===== */
@@ -157,6 +161,8 @@ body.light-theme {
 
     --filelink: #0d6efd;
     --filelink-visited: #6c757d;
+
+    --folderBtn: black;
 }
 
 /* ===== STYLE OGÓLNE ===== */
@@ -551,7 +557,7 @@ form > legend {
 }
 
 #createFolderBtn {
-    color: var(--text-inverted);
+    color: var(--folderBtn);
     background: transparent;
     border: none;
     transition: color 0.3s ease, transform 0.2s ease;
