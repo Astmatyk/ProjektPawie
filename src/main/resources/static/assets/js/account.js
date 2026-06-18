@@ -92,8 +92,7 @@ function uploadFile() {
     const file = uploadForm.files[0];
     if (!file) return;
 
-    //walidacja długości nazwy pliku
-    //zgodnie z tym co wprowadziliśmy na backendzie
+    // walidacja długości nazwy pliku
     if (file.name.length > 150) {
         alert("Nazwa pliku jest za długa.\nMaksymalna ilość: 150 znaków.");
         uploadForm.value = null;
@@ -104,9 +103,21 @@ function uploadFile() {
     uploadBtn.innerHTML = 'Przesyłanie...';
     uploading = 1;
 
-    // zmieńmy to na fetch w wolnej chwili
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/upload');
+
+
+    // pobieramy tokenu CSRF z tagów meta i wstrzykiwanie do nagłówka XHR zeby to cos działało
+
+    const csrfTokenEl = document.querySelector('meta[name="_csrf"]');
+    const csrfHeaderEl = document.querySelector('meta[name="_csrf_header"]');
+
+    if (csrfTokenEl && csrfHeaderEl) {
+        const token = csrfTokenEl.getAttribute('content');
+        const header = csrfHeaderEl.getAttribute('content');
+        xhr.setRequestHeader(header, token);
+    }
+
 
     uploadBar.style.height = '5px';
     uploadBar.style.width = 0;
@@ -164,16 +175,26 @@ function uploadFile() {
     xhr.send(formData);
 }
 
-// usuwanie!
+// funkcja pod csrf
+function getCsrfHeaders() {
+    const tokenEl = document.querySelector('meta[name="_csrf"]');
+    const headerEl = document.querySelector('meta[name="_csrf_header"]');
+    if (tokenEl && headerEl) {
+        return { [headerEl.getAttribute('content')]: tokenEl.getAttribute('content') };
+    }
+    return {};
+}
+
+//usuwanie pliku
 function deleteFile(fileId, button) {
-    //R.I.P. stary komunikat
     if (!confirm("Na pewno?")) return;
     console.log("Usuwam ID " + fileId);
 
     fetch('/api/delete', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...getCsrfHeaders() // <--- Dodany CSRF
         },
         body: JSON.stringify({ id: fileId })
     })
@@ -190,6 +211,7 @@ function deleteFile(fileId, button) {
         });
 }
 
+// usuwanie folderu
 function deleteFolder(fileId, button) {
     if (!confirm("Na pewno?")) return;
     console.log("Usuwam ID " + fileId);
@@ -197,7 +219,8 @@ function deleteFolder(fileId, button) {
     fetch('/api/folders/delete', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...getCsrfHeaders() // <--- Dodany CSRF
         },
         body: JSON.stringify({ id: fileId })
     })
@@ -214,13 +237,12 @@ function deleteFolder(fileId, button) {
         });
 }
 
-// zmiana nazwy!
+// zmiana nazwy pliku
 function renameFile(fileId, oldName) {
     const newName = prompt("Wprowadź nową nazwę pliku:", oldName);
     if (!newName || newName === oldName || newName.trim() === '') return;
     if (newName.length > 150) {
         alert("Nazwa pliku jest za długa.\nMaksymalna ilość: 150 znaków.");
-        uploadForm.value = null;
         return;
     }
 
@@ -229,14 +251,14 @@ function renameFile(fileId, oldName) {
     fetch('/api/rename', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...getCsrfHeaders() // <--- Dodany CSRF
         },
         body: JSON.stringify({ id: fileId, newName: newName })
     })
         .then(res => res.json())
         .then(result => {
             if (result.status === 'ok') {
-                //ponownie pobieramy listę plików
                 fetchList();
             } else {
                 console.log("Błąd zmiany nazwy: " + result.message);
@@ -245,12 +267,12 @@ function renameFile(fileId, oldName) {
         });
 }
 
+// zmiana nazwy folderu
 function renameFolder(fileId, oldName) {
     const newName = prompt("Wprowadź nową nazwę folderu:", oldName);
     if (!newName || newName === oldName || newName.trim() === '') return;
     if (newName.length > 150) {
         alert("Nazwa folderu jest za długa.\nMaksymalna ilość: 150 znaków.");
-        uploadForm.value = null;
         return;
     }
 
@@ -259,14 +281,14 @@ function renameFolder(fileId, oldName) {
     fetch('/api/folders/rename', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...getCsrfHeaders() // <--- Dodany CSRF
         },
         body: JSON.stringify({ id: fileId, newName: newName })
     })
         .then(res => res.json())
         .then(result => {
             if (result.status === 'ok') {
-                //ponownie pobieramy listę plików
                 fetchList();
             } else {
                 console.log("Błąd zmiany nazwy: " + result.message);
@@ -275,9 +297,13 @@ function renameFolder(fileId, oldName) {
         });
 }
 
+// udostępnianie
 function shareFile(fileId) {
     fetch(`/api/share/${fileId}`, {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+            ...getCsrfHeaders() // <--- Dodany CSRF (żądanie POST bez body też go wymaga!)
+        }
     })
         .then(res => res.json())
         .then(result => {
