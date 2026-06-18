@@ -17,12 +17,17 @@ form.addEventListener("submit", (event) => {
                 <div class="spinner"></div>
             </div>
         `;
-    // errorMessage.style.display = "none";
 
+    // pobieranie wartości CSRF z tagów meta
+    const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    // dorzucanie nagłówka CSRF
     fetch("/api/register", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            [header]: token // dynamiczny klucz nagłówka
         },
         body: JSON.stringify({ email: emailVal, username: loginVal, password: passwordVal, passwordConfirm: passwordConfirmVal })
     })
