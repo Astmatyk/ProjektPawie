@@ -41,7 +41,7 @@ public class AdminController {
         }
 
         // pobieranie użytkowników z bazy do wyświetlenia
-        List<User> allUsers = userRepository.findAll();
+        List<User> allUsers = userRepository.findAllByOrderByIdAsc();
         List<Map<String, Object>> userRows = new ArrayList<>();
 
         for (User u : allUsers) {
