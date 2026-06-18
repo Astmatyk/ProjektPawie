@@ -19,7 +19,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // tymczasowo wyłączamy csrf
+                //.csrf(AbstractHttpConfigurer::disable) // tymczasowo wyłączamy csrf
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/error", "/assets/**", "/index.html", "/login", "/register", "/api/register", "/theme/**", "/share/*", "/api/share/**", "/deklaracja.html").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
