@@ -3,6 +3,16 @@
 const emailForm = document.getElementById('emailForm');
 const passwordForm = document.getElementById('passwordForm');
 
+// funkcja pomocnicza do pobierania nagłówków CSRF
+function getCsrfHeaders() {
+    const tokenEl = document.querySelector('meta[name="_csrf"]');
+    const headerEl = document.querySelector('meta[name="_csrf_header"]');
+    if (tokenEl && headerEl) {
+        return { [headerEl.getAttribute('content')]: tokenEl.getAttribute('content') };
+    }
+    return {};
+}
+
 function toggleSection(section) {
     const view = document.getElementById(`${section}-view`);
     const edit = document.getElementById(`${section}-edit`);
@@ -17,11 +27,13 @@ function toggleSection(section) {
 }
 
 function deleteOwnAccount() {
-
     if (confirm("CZY NA PEWNO CHCESZ USUNĄĆ SWOJE KONTO?\nTa operacja jest nieodwracalna, a wszystkie Twoje pliki w chmurze zostaną skasowane.")) {
 
         fetch("/api/account/delete", {
-            method: "POST"
+            method: "POST",
+            headers: {
+                ...getCsrfHeaders()
+            }
         })
             .then(res => {
                 if (res.ok) {
@@ -38,9 +50,13 @@ emailForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
     const newEmail = document.getElementById("newEmail").value;
+
     fetch("/api/account/email", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            ...getCsrfHeaders()
+        },
         body: JSON.stringify({ newEmail })
     })
         .then(async res => {
@@ -50,8 +66,10 @@ emailForm.addEventListener("submit", (event) => {
                 location.reload();
             } else {
                 alert("Błąd: " + await res.text());
+                location.reload();
             }
         });
+
     emailForm.innerHTML = `<div class="spinner-container">
           <div class="spinner"></div>
       </div>`;
@@ -66,7 +84,10 @@ passwordForm.addEventListener("submit", (event) => {
 
     fetch("/api/account/password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            ...getCsrfHeaders()
+        },
         body: JSON.stringify({ oldPassword, newPassword })
     })
         .then(async res => {
@@ -76,10 +97,11 @@ passwordForm.addEventListener("submit", (event) => {
                 location.reload();
             } else {
                 alert("Błąd: " + await res.text());
+                location.reload();
             }
         });
+
     passwordForm.innerHTML = `<div class="spinner-container">
           <div class="spinner"></div>
-      </div>
-      `;
+      </div>`;
 });

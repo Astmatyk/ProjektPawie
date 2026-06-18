@@ -10,6 +10,9 @@
 <header>
     <div th:replace="~{fragments/header :: mainHead}"></div>
     <div th:replace="~{fragments/header :: mainNav}"></div>
+
+    <meta th:name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
 </header>
 <main>
     <div>

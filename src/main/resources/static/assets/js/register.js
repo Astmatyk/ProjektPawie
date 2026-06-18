@@ -27,7 +27,7 @@ form.addEventListener("submit", (event) => {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            [header]: token // dynamiczny klucz nagłówka
+            [header]: token
         },
         body: JSON.stringify({ email: emailVal, username: loginVal, password: passwordVal, passwordConfirm: passwordConfirmVal })
     })

@@ -30,6 +30,16 @@ function showLoadingSpinner() {
         `;
 }
 
+// funkcja pod csrf
+function getCsrfHeaders() {
+    const tokenEl = document.querySelector('meta[name="_csrf"]');
+    const headerEl = document.querySelector('meta[name="_csrf_header"]');
+    if (tokenEl && headerEl) {
+        return { [headerEl.getAttribute('content')]: tokenEl.getAttribute('content') };
+    }
+    return {};
+}
+
 function fetchList() {
     const folderQuery = currentFolderId ? `?folderId=${currentFolderId}` : '';
     const parentQuery = currentFolderId ? `?parentId=${currentFolderId}` : '';
@@ -71,7 +81,10 @@ function createFolder() {
 
     fetch('/api/folders/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            ...getCsrfHeaders()
+        },
         body: JSON.stringify({
             folderName: folderName,
             parentId: currentFolderId
@@ -107,7 +120,7 @@ function uploadFile() {
     xhr.open('POST', '/api/upload');
 
 
-    // pobieramy tokenu CSRF z tagów meta i wstrzykiwanie do nagłówka XHR zeby to cos działało
+    // pobieranie tokenu CSRF z tagów meta i wstrzykiwanie do nagłówka XHR zeby to cos działało
 
     const csrfTokenEl = document.querySelector('meta[name="_csrf"]');
     const csrfHeaderEl = document.querySelector('meta[name="_csrf_header"]');
@@ -175,16 +188,6 @@ function uploadFile() {
     xhr.send(formData);
 }
 
-// funkcja pod csrf
-function getCsrfHeaders() {
-    const tokenEl = document.querySelector('meta[name="_csrf"]');
-    const headerEl = document.querySelector('meta[name="_csrf_header"]');
-    if (tokenEl && headerEl) {
-        return { [headerEl.getAttribute('content')]: tokenEl.getAttribute('content') };
-    }
-    return {};
-}
-
 //usuwanie pliku
 function deleteFile(fileId, button) {
     if (!confirm("Na pewno?")) return;
@@ -194,7 +197,7 @@ function deleteFile(fileId, button) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...getCsrfHeaders() // <--- Dodany CSRF
+            ...getCsrfHeaders()
         },
         body: JSON.stringify({ id: fileId })
     })
@@ -220,7 +223,7 @@ function deleteFolder(fileId, button) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...getCsrfHeaders() // <--- Dodany CSRF
+            ...getCsrfHeaders()
         },
         body: JSON.stringify({ id: fileId })
     })
@@ -252,7 +255,7 @@ function renameFile(fileId, oldName) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...getCsrfHeaders() // <--- Dodany CSRF
+            ...getCsrfHeaders()
         },
         body: JSON.stringify({ id: fileId, newName: newName })
     })
@@ -282,7 +285,7 @@ function renameFolder(fileId, oldName) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...getCsrfHeaders() // <--- Dodany CSRF
+            ...getCsrfHeaders()
         },
         body: JSON.stringify({ id: fileId, newName: newName })
     })
@@ -302,7 +305,7 @@ function shareFile(fileId) {
     fetch(`/api/share/${fileId}`, {
         method: 'POST',
         headers: {
-            ...getCsrfHeaders() // <--- Dodany CSRF (żądanie POST bez body też go wymaga!)
+            ...getCsrfHeaders()
         }
     })
         .then(res => res.json())
