@@ -31,7 +31,7 @@ public class FileDeletionListenerService {
                 connection = dataSource.getConnection();
                 Statement stmt = connection.createStatement();
 
-                // mówimy Postgresowi: "Od teraz słucham tego kanału"
+                // nasłuchiwanie kanału
                 stmt.execute("LISTEN file_deletion_channel");
                 stmt.close();
 
@@ -41,14 +41,13 @@ public class FileDeletionListenerService {
                 System.out.println("[FileDeletionListenerService] Uruchomiono listener");
 
                 while (running) {
-                    // sprawdzamy powiadomienia.
-                    // parametr 1000 oznacza, że wątek bezpiecznie "śpi" i czeka max 1 sekundę na sygnał.
-                    // dzięki temu obciążenie procesora wynosi równe 0%.
+                    // sprawdzamy powiadomienia
+                    // wątek czeka na sygnał maks 1 sekunde
                     PGNotification[] notifications = pgConn.getNotifications(1000);
 
                     if (notifications != null) {
                         for (PGNotification notification : notifications) {
-                            // Tu ląduje tekst, który w triggerze przekazałeś jako OLD.path
+                            // wyłapywanie ścieżki pliku do usunięcia
                             String filePath = notification.getParameter();
                             System.out.println("[FileDeletionListenerService] Sprzątam: " + filePath);
 
