@@ -27,7 +27,7 @@ public class RegisterRequest {
     @NotBlank(message = "Hasło jest wymagane")
     @Size(min = 8, message = "Hasło musi mieć co najmniej 8 znaków")
     @Pattern(
-            regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",
+            regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$",
             message = "Hasło musi zawierać co najmniej 8 znaków, w tym cyfrę i znak specjalny"
     )
     private String password;
