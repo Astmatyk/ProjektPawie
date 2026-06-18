@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap');
 
-/* ===== ZMIENNE CSS (MOTYW DOMYŚLNY – CIEMNY) ===== */
 :root {
     /* tła */
     --bg-primary: #121212;
@@ -69,7 +68,7 @@ body.high-contrast {
     --text-primary: #ffffff;
     --text-secondary: #cccccc;
     --text-button: #000000;
-    --text-inverted: #000000;
+    --text-inverted: #FFF;
 
     --accent: #ffff00;
     --accent-hover: #ffcc00;
@@ -108,7 +107,6 @@ body.high-contrast {
     --filelink-visited: #cccccc;
 }
 
-/* ===== MOTYW JASNY ===== */
 body.light-theme {
     --bg-primary: #ffffff;
     --bg-surface: #f0f0f0;
@@ -159,7 +157,7 @@ body.light-theme {
     --filelink-visited: #6c757d;
 }
 
-/* ===== STYLE OGÓLNE ===== */
+/* style ogólne */
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-primary);
@@ -224,12 +222,14 @@ nav>p {
     margin: 10px 5px 15px 0;
 }
 
-nav>p a {
+nav>p a, .logout-btn {
     padding-left: 5px;
     padding-right: 5px;
     font-size: 14px;
     color: var(--nav-text);
     text-decoration: none;
+    border: none;
+    cursor: pointer;
     background-color: var(--nav-bg);
     border-radius: 5px;
     padding: 7px;
@@ -238,7 +238,15 @@ nav>p a {
             box-shadow 0.3s ease;
 }
 
-nav>p:hover a {
+#logoutHeaderAction {
+    display: block;
+    margin: 11px 5px 15px 0;
+
+    /*width: 52px;*/
+    /*height: 20px;*/
+}
+
+nav>p:hover a, .logout-btn:hover {
     padding-left: 5px;
     padding-right: 5px;
     color: var(--nav-hover-text);
@@ -509,13 +517,13 @@ form > legend {
 }
 
 .theme-div {
-    margin-left: auto;
+    margin-left: 10px;
 }
 
 .theme-button {
-    color: var(--nav-text);
+    color: var(--text-inverted);
     text-decoration: none;
-    background-color: var(--nav-bg);
+    background: none;
     border-radius: 5px;
     padding: 7px;
     transition:
