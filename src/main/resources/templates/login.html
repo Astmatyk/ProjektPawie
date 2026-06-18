@@ -16,7 +16,7 @@
 </header>
 <main>
   <div class="myForm">
-    <form id="loginForm" action="/api/login" method="POST">
+    <form id="loginForm" th:action="@{/api/login}" method="POST">
       <legend>Logowanie</legend><br>
       <input type="text" name="username" id="username" placeholder="login..." required /><br>
       <input type="password" name="password" id="password" required placeholder="hasło..." minlength="8" /><br>
