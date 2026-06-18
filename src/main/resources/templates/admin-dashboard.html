@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AstraCloud Spring</title>
     <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+
+    <meta th:name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body th:classappend="${session.theme != null ? session.theme : 'dark-theme'}">
 <header>
@@ -25,10 +28,12 @@
             <th>Subskrypcja (Limit)</th>
             <th>Pliki wgrane</th>
             <th>Zużycie pamięci</th>
+            <th>Akcje</th>
+            <th>Usuwanie</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="u : ${usersList}">
+        <tr th:each="u : ${usersList}" th:id="'user-row-' + ${u.id}">
             <td th:text="${u.id}">1</td>
             <td th:text="${u.username}">user</td>
             <td th:text="${u.email}">user@test.pl</td>
@@ -44,62 +49,68 @@
             <td>
                 <button type="button" class="btn-delete" th:onclick="'deleteUser(' + ${u.id} + ')'">Usuń konto</button>
             </td>
-            <div id="editModal" class="modal-overlay" style="display: none;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Edycja użytkownika: <span id="modal-username-title"></span></h3>
-                        <span class="close-modal" onclick="closeModal()">&times;</span>
-                    </div>
-
-                    <form id="admin-edit-form" onsubmit="submitAdminEdit(event)">
-                        <input type="hidden" id="modal-user-id">
-
-                        <div class="form-group">
-                            <label for="modal-email">Adres E-mail</label>
-                            <input type="email" id="modal-email" class="form-input" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="modal-subscription">Pakiet subskrypcji</label>
-                            <select id="modal-subscription" class="form-input">
-                                <option value="FREE">FREE</option>
-                                <option value="PREMIUM">PREMIUM</option>
-                                <option value="ENTERPRISE">ENTERPRISE</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="modal-password">Nowe hasło (Zostaw puste, jeśli bez zmian)</label>
-                            <input type="password" id="modal-password" class="form-input" placeholder="Wpisz nowe hasło użytkownika...">
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn-cancel" onclick="closeModal()">Anuluj</button>
-                            <button type="submit" class="btn-save">Zapisz zmiany</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
         </tr>
         </tbody>
     </table>
+
+    <div id="editModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edycja użytkownika: <span id="modal-username-title"></span></h3>
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+            </div>
+
+            <form id="admin-edit-form" onsubmit="submitAdminEdit(event)">
+                <input type="hidden" id="modal-user-id">
+
+                <div class="form-group">
+                    <label for="modal-email">Adres E-mail</label>
+                    <input type="email" id="modal-email" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="modal-subscription">Pakiet subskrypcji</label>
+                    <select id="modal-subscription" class="form-input">
+                        <option value="FREE">FREE</option>
+                        <option value="PREMIUM">PREMIUM</option>
+                        <option value="ENTERPRISE">ENTERPRISE</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="modal-password">Nowe hasło (Zostaw puste, jeśli bez zmian)</label>
+                    <input type="password" id="modal-password" class="form-input" placeholder="Wpisz nowe hasło użytkownika...">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Anuluj</button>
+                    <button type="submit" class="btn-save">Zapisz zmiany</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </main>
+
 <script>
+    // Funkcja pomocnicza do pobierania tokenu CSRF z tagów meta
+    function getCsrfConfig() {
+        const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        return { token, header };
+    }
+
     function openEditModal(button) {
-        // Pobieramy dane z klikniętego wiersza
         const id = button.getAttribute('data-id');
         const username = button.getAttribute('data-username');
         const email = button.getAttribute('data-email');
         const subscription = button.getAttribute('data-subscription');
 
-        // Wstrzykujemy dane do modala
         document.getElementById('modal-user-id').value = id;
         document.getElementById('modal-username-title').innerText = username;
         document.getElementById('modal-email').value = email;
         document.getElementById('modal-subscription').value = subscription;
-        document.getElementById('modal-password').value = ''; // czyścimy pole hasła
+        document.getElementById('modal-password').value = '';
 
-        // Pokazujemy modal
         document.getElementById('editModal').style.display = 'flex';
     }
 
@@ -115,15 +126,19 @@
         const subscription = document.getElementById('modal-subscription').value;
         const password = document.getElementById('modal-password').value;
 
+        // Pobieramy nagłówki CSRF
+        const csrf = getCsrfConfig();
+
         fetch("/admin/api/users/" + userId, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                [csrf.header]: csrf.token // WSTRZYKNIĘCIE TOKENU CSRF
             },
             body: JSON.stringify({
                 email: email,
                 subscription: subscription,
-                password: password // jeśli puste, backend to zignoruje
+                password: password
             })
         })
             .then(async res => {
@@ -139,22 +154,29 @@
 
     function deleteUser(userId) {
         if (confirm("Czy na pewno chcesz bezpowrotnie usunąć tego użytkownika i wszystkie jego pliki?")) {
+            // Pobieramy nagłówki CSRF
+            const csrf = getCsrfConfig();
+
             fetch("/admin/api/users/" + userId, {
-                method: "DELETE"
+                method: "DELETE",
+                headers: {
+                    [csrf.header]: csrf.token // WSTRZYKNIĘCIE TOKENU CSRF przy DELETE
+                }
             })
                 .then(res => {
                     if (res.ok) {
                         // zajebisty ten kod taki że nie działa
                         // document.getElementById('user-row-' + userId).remove();
+                        const row = document.getElementById('user-row-' + userId);
+                        if(row) row.remove();
+
                         alert("Użytkownik został usunięty.");
-                        location.reload();
                     } else {
                         alert("Nie udało się usunąć użytkownika.");
                     }
                 });
         }
     }
-
 </script>
 </body>
 </html>
