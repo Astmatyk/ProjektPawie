@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AstraCloud Spring</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
 </head>
 <body th:classappend="${session.theme ?: 'dark-theme'}">
 <header>
@@ -66,7 +66,7 @@
         </div>
     </div>
 
-    <script src="/assets/js/manageAccount.js"></script>
+    <script th:src="@{/assets/js/manageAccount.js}"></script>
 </main>
 <footer>
     <p th:replace="~{fragments/footer :: version}"></p>
