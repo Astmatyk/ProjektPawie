@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AstraCloud Spring</title>
     <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+
+    <meta th:name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body th:classappend="${session.theme != null ? session.theme : 'dark-theme'}">
 <header>
