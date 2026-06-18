@@ -4,25 +4,31 @@
 <body>
 
   <div class="head" th:fragment="mainHead">
-    <a href="/">
+    <a th:href="@{/}">
       <img th:if="${session.theme == null || session.theme == 'dark-theme'}"
-           src="/assets/img/astracloud_logo.svg" alt="astra" width="200">
+           th:src="@{/assets/img/astracloud_logo.svg}" alt="astra" width="200">
 
       <img th:if="${session.theme == 'light-theme'}"
-           src="/assets/img/astracloud_logo_light.svg" alt="astra" width="200">
+           th:src="@{/assets/img/astracloud_logo_light.svg}" alt="astra" width="200">
 
       <img th:if="${session.theme == 'high-contrast'}"
-           src="/assets/img/astracloud_logo.svg" alt="astra" width="200">
+           th:src="@{/assets/img/astracloud_logo.svg}" alt="astra" width="200">
     </a>
   </div>
 
   <nav th:fragment="mainNav">
-    <p><a href="/">Strona główna</a></p>
+    <p><a th:href="@{/}">Strona główna</a></p>
     <p id="diskHeaderAction"><a href="/account">Dysk</a></p>
-    <p sec:authorize="isAnonymous()" id="loginHeaderAction"><a href="/login">Logowanie</a></p>
-    <p sec:authorize="isAnonymous()" id="registerHeaderAction"><a href="/register">Rejestracja</a></p>
-    <p sec:authorize="isAuthenticated()" id="accountDataAction"><a href="/manageAccount">Konto</a></p>
-    <p sec:authorize="isAuthenticated()" id="logoutHeaderAction"><a href="/api/logout">Wyloguj</a></p>
+    <p sec:authorize="isAnonymous()" id="loginHeaderAction"><a th:href="@{/login}">Logowanie</a></p>
+    <p sec:authorize="isAnonymous()" id="registerHeaderAction"><a th:href="@{/register}">Rejestracja</a></p>
+    <p sec:authorize="isAuthenticated()" id="accountDataAction"><a th:href="@{/manageAccount}">Konto</a></p>
+    <div sec:authorize="isAuthenticated()" id="logoutHeaderAction" style="display: inline; margin: 10px 5px 15px 0;">
+      <form th:action="@{/api/logout}" method="post" style="display: inline;">
+        <button type="submit" class="logout-btn-tile">
+          Wyloguj
+        </button>
+      </form>
+    </div>
 
     <div class="theme-div">
       <form th:action="@{/theme/switch}" method="post">
